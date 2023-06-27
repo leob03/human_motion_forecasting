@@ -24,7 +24,7 @@ from utils import util
 from utils import log
 
 batch_size = 1
-num_frames = 50
+num_frames = 60
 num_joints = 32
 
 opt = Options().parse()
@@ -86,7 +86,7 @@ def body_tracking_callback(msg):
 
         net_pred.eval()
         titles = np.array(range(opt.output_n)) + 1
-        # m_p3d_h36 = np.zeros([opt.output_n])
+        m_p3d_h36 = np.zeros([opt.output_n])
         n = 0
         in_n = opt.input_n
         out_n = opt.output_n
@@ -107,20 +107,22 @@ def body_tracking_callback(msg):
         
         batch_size, seq_n, _ = input_data.shape
 
+        n += batch_size
         bt = time.time()
         p3d_h36 = input_data.float().cuda()
         # print(p3d_h36.shape)
         # print(p3d_h36[0,0,:])
+        p3d_sup = p3d_h36.clone()[:, :, dim_used][:, -out_n - seq_in:].reshape(
+            [-1, seq_in + out_n, len(dim_used) // 3, 3])
         p3d_src = p3d_h36.clone()[:, :, dim_used]
-
+        # p3d_src = p3d_src.permute(1, 0, 2)  # seq * n * dim
+        # p3d_src = p3d_src[:in_n]
         p3d_out_all = net_pred(p3d_src*1000, input_n=in_n, output_n=10, itera=itera)
-        # print(p3d_out_all.shape)
 
         p3d_out_all = p3d_out_all[:, seq_in:].transpose(1, 2).reshape([batch_size, 10 * itera, -1])[:, :out_n]
         # print(p3d_out_all.shape)
 
-        # p3d_out = p3d_h36.clone()[:, in_n:in_n + out_n]
-        p3d_out = p3d_h36.clone()[:, in_n - out_n:in_n]
+        p3d_out = p3d_h36.clone()[:, in_n:in_n + out_n]
         p3d_out[:, :, dim_used] = p3d_out_all
         p3d_out[:, :, index_to_ignore] = p3d_out[:, :, index_to_equal]
         p3d_out = p3d_out.reshape([-1, out_n, 32, 3])*0.001
@@ -129,6 +131,39 @@ def body_tracking_callback(msg):
         #mpjpe_p3d_h36 = torch.sum(torch.mean(torch.norm(p3d_h36[:, in_n:] - p3d_out, dim=3), dim=2), dim=0)
 
         #end of network
+
+        #publish the groundtruth for visualization 
+        p3d_h36 = p3d_h36.reshape([-1, in_n + out_n, 32, 3])
+        grnd_truth = p3d_h36[:, in_n:]
+        grnd = grnd_truth[:,-1]
+        grnd_coordinates = grnd.view(num_joints, 3)
+
+        marker1 = Marker()
+        marker1.header.frame_id = "depth_camera_link"
+        marker1.type = Marker.SPHERE_LIST
+        # marker.type = 2
+        marker1.action = Marker.ADD
+        marker1.scale.x = 0.05
+        marker1.scale.y = 0.05
+        marker1.scale.z = 0.05
+        marker1.color.a = 1.0
+        marker1.color.r = 0.0
+        marker1.color.g = 1.0
+        marker1.color.b = 0.0
+
+        for coordinate in grnd_coordinates:
+            point = Point()
+            point.x = coordinate[0].item()
+            point.y = coordinate[1].item()
+            point.z = coordinate[2].item()
+            marker1.points.append(point)
+        
+        marker1.pose.orientation.x = 0.0
+        marker1.pose.orientation.y = 0.0
+        marker1.pose.orientation.z = 0.0
+        marker1.pose.orientation.w = 1.0
+
+        marker_publisher1.publish(marker1)
 
         #publish the prediction for visualization 
         prediction = p3d_out[:,-1]
@@ -143,9 +178,9 @@ def body_tracking_callback(msg):
         marker.scale.y = 0.05
         marker.scale.z = 0.05
         marker.color.a = 1.0
-        marker.color.r = 0.0
+        marker.color.r = 1.0
         marker.color.g = 0.0
-        marker.color.b = 1.0
+        marker.color.b = 0.0
 
         for coordinate in prediction_coordinates:
             point = Point()
@@ -173,6 +208,7 @@ def body_tracking_callback(msg):
 
 if __name__ == '__main__':
     rospy.init_node('motion_forecasting_node', anonymous=True)
+    marker_publisher1 = rospy.Publisher("/visualization_marker1", Marker, queue_size=1)
     marker_publisher = rospy.Publisher("/visualization_marker", Marker, queue_size=1)
     rospy.Subscriber('body_tracking_data', MarkerArray, body_tracking_callback)
     rospy.spin()
