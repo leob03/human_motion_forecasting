@@ -1,0 +1,20 @@
+{
+    "exp": "main_h36m_3d_in50_out25_ks5_dctn10",
+    "is_eval": false,
+    "ckpt": "checkpoint/main_h36m_3d_in50_out25_ks5_dctn10",
+    "skip_rate": 5,
+    "skip_rate_test": 5,
+    "in_features": 54,
+    "num_stage": 12,
+    "d_model": 256,
+    "kernel_size": 5,
+    "input_n": 50,
+    "output_n": 25,
+    "dct_n": 10,
+    "lr_now": 0.0005,
+    "max_norm": 10000,
+    "epoch": 50,
+    "batch_size": 32,
+    "test_batch_size": 16,
+    "is_load": false
+}
