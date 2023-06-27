@@ -1,0 +1,34 @@
+{
+    "python.autoComplete.extraPaths": [
+        "/home/bartonlab-user/workspace/devel_isolated/ros_numpy/lib/python3/dist-packages",
+        "/home/bartonlab-user/workspace/devel_isolated/openni_camera/lib/python3/dist-packages",
+        "/home/bartonlab-user/workspace/devel_isolated/kmriiwa_msgs/lib/python3/dist-packages",
+        "/home/bartonlab-user/workspace/devel_isolated/khi_robot_msgs/lib/python3/dist-packages",
+        "/home/bartonlab-user/workspace/devel_isolated/ira_laser_tools/lib/python3/dist-packages",
+        "/home/bartonlab-user/workspace/devel_isolated/iiwa_msgs/lib/python3/dist-packages",
+        "/home/bartonlab-user/workspace/devel_isolated/freenect_camera/lib/python3/dist-packages",
+        "/home/bartonlab-user/workspace/devel_isolated/fkie_node_manager/lib/python3/dist-packages",
+        "/home/bartonlab-user/workspace/devel_isolated/fkie_node_manager_daemon/lib/python3/dist-packages",
+        "/home/bartonlab-user/workspace/devel_isolated/fkie_master_sync/lib/python3/dist-packages",
+        "/home/bartonlab-user/workspace/devel_isolated/fkie_master_discovery/lib/python3/dist-packages",
+        "/home/bartonlab-user/workspace/devel_isolated/fkie_multimaster_msgs/lib/python3/dist-packages",
+        "/home/bartonlab-user/workspace/devel_isolated/apriltag_ros/lib/python3/dist-packages",
+        "/opt/ros/noetic/lib/python3/dist-packages"
+    ],
+    "python.analysis.extraPaths": [
+        "/home/bartonlab-user/workspace/devel_isolated/ros_numpy/lib/python3/dist-packages",
+        "/home/bartonlab-user/workspace/devel_isolated/openni_camera/lib/python3/dist-packages",
+        "/home/bartonlab-user/workspace/devel_isolated/kmriiwa_msgs/lib/python3/dist-packages",
+        "/home/bartonlab-user/workspace/devel_isolated/khi_robot_msgs/lib/python3/dist-packages",
+        "/home/bartonlab-user/workspace/devel_isolated/ira_laser_tools/lib/python3/dist-packages",
+        "/home/bartonlab-user/workspace/devel_isolated/iiwa_msgs/lib/python3/dist-packages",
+        "/home/bartonlab-user/workspace/devel_isolated/freenect_camera/lib/python3/dist-packages",
+        "/home/bartonlab-user/workspace/devel_isolated/fkie_node_manager/lib/python3/dist-packages",
+        "/home/bartonlab-user/workspace/devel_isolated/fkie_node_manager_daemon/lib/python3/dist-packages",
+        "/home/bartonlab-user/workspace/devel_isolated/fkie_master_sync/lib/python3/dist-packages",
+        "/home/bartonlab-user/workspace/devel_isolated/fkie_master_discovery/lib/python3/dist-packages",
+        "/home/bartonlab-user/workspace/devel_isolated/fkie_multimaster_msgs/lib/python3/dist-packages",
+        "/home/bartonlab-user/workspace/devel_isolated/apriltag_ros/lib/python3/dist-packages",
+        "/opt/ros/noetic/lib/python3/dist-packages"
+    ]
+}

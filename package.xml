@@ -1,8 +1,8 @@
 <?xml version="1.0"?>
 <package format="2">
-  <name>azure_bodytracking</name>
+  <name>human_motion_forecasting</name>
   <version>0.0.0</version>
-  <description>The azure_bodytracking package</description>
+  <description>The human_motion_forecasting package</description>
 
   <!-- One maintainer tag required, multiple allowed, one person per tag -->
   <!-- Example:  -->

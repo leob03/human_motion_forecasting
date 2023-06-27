@@ -1,0 +1,50 @@
+{
+  "configurations": [
+    {
+      "browse": {
+        "databaseFilename": "${default}",
+        "limitSymbolsToIncludedHeaders": false
+      },
+      "includePath": [
+        "/home/bartonlab-user/workspace/devel_isolated/openni_camera/include/**",
+        "/home/bartonlab-user/workspace/devel_isolated/kmriiwa_msgs/include/**",
+        "/home/bartonlab-user/workspace/devel_isolated/khi_robot_msgs/include/**",
+        "/home/bartonlab-user/workspace/devel_isolated/ira_laser_tools/include/**",
+        "/home/bartonlab-user/workspace/devel_isolated/iiwa_msgs/include/**",
+        "/home/bartonlab-user/workspace/devel_isolated/freenect_camera/include/**",
+        "/home/bartonlab-user/workspace/devel_isolated/fkie_multimaster_msgs/include/**",
+        "/home/bartonlab-user/workspace/devel_isolated/apriltag_ros/include/**",
+        "/opt/ros/noetic/include/**",
+        "/home/bartonlab-user/workspace/devel_isolated/apriltag/include/**",
+        "/home/bartonlab-user/workspace/src/apriltag_ros/apriltag_ros/include/**",
+        "/home/bartonlab-user/workspace/src/automap/include/**",
+        "/home/bartonlab-user/workspace/src/azure_bodytracking/include/**",
+        "/home/bartonlab-user/workspace/src/Azure_Kinect_ROS_Driver/include/**",
+        "/home/bartonlab-user/workspace/src/brg_remote_kinect/include/**",
+        "/home/bartonlab-user/workspace/src/demo_azure_duaro/include/**",
+        "/home/bartonlab-user/workspace/src/duaro_dt/include/**",
+        "/home/bartonlab-user/workspace/src/freenect_stack/freenect_camera/include/**",
+        "/home/bartonlab-user/workspace/src/hsr_fps/include/**",
+        "/home/bartonlab-user/workspace/src/hsr_servo/include/**",
+        "/home/bartonlab-user/workspace/src/iiwa_stack/iiwa_hw/include/**",
+        "/home/bartonlab-user/workspace/src/iiwa_stack/iiwa_ros/include/**",
+        "/home/bartonlab-user/workspace/src/khi_robot-master/khi_duaro_ikfast_plugin/include/**",
+        "/home/bartonlab-user/workspace/src/khi_robot-master/khi_robot_control/include/**",
+        "/home/bartonlab-user/workspace/src/khi_robot-master/khi_rs_ikfast_plugin/include/**",
+        "/home/bartonlab-user/workspace/src/learning_from_demo/include/**",
+        "/home/bartonlab-user/workspace/src/multi_robot_integration/include/**",
+        "/home/bartonlab-user/workspace/src/openni_camera/openni_camera/include/**",
+        "/home/bartonlab-user/workspace/src/robot_colab/include/**",
+        "/opt/ros/noetic/share/tmc_julius/include/**",
+        "/home/bartonlab-user/workspace/src/usb_cam/include/**",
+        "/usr/include/**"
+      ],
+      "name": "ROS",
+      "intelliSenseMode": "gcc-x64",
+      "compilerPath": "/usr/bin/gcc",
+      "cStandard": "gnu11",
+      "cppStandard": "c++14"
+    }
+  ],
+  "version": 4
+}

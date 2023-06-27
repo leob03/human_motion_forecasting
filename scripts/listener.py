@@ -46,8 +46,8 @@ def body_tracking_callback(msg):
     if frame_count == num_frames:
 
         input_data = processed_data.view(batch_size, num_frames, num_joints*3)
-        # print(input_data.shape)
-        print(input_data.reshape(-1,32,3)[0,:])
+        print(input_data.shape)
+        # print(input_data.reshape(-1,32,3)[0,:])
         # output = model(input_data)
 
         elapsed_time = time.time() - start_timestamp
