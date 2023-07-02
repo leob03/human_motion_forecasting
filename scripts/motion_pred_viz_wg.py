@@ -140,28 +140,50 @@ def body_tracking_callback(msg):
 
         marker1 = Marker()
         marker1.header.frame_id = "depth_camera_link"
-        marker1.type = Marker.SPHERE_LIST
+        # marker1.type = Marker.SPHERE_LIST
+        marker1.type = Marker.LINE_LIST
         # marker.type = 2
         marker1.action = Marker.ADD
-        marker1.scale.x = 0.05
-        marker1.scale.y = 0.05
-        marker1.scale.z = 0.05
+        marker1.scale.x = 0.01
+        marker1.scale.y = 0.01
+        marker1.scale.z = 0.01
         marker1.color.a = 1.0
         marker1.color.r = 0.0
-        marker1.color.g = 1.0
-        marker1.color.b = 0.0
-
-        for coordinate in grnd_coordinates:
-            point = Point()
-            point.x = coordinate[0].item()
-            point.y = coordinate[1].item()
-            point.z = coordinate[2].item()
-            marker1.points.append(point)
+        marker1.color.g = 0.0
+        marker1.color.b = 1.0     
         
-        marker1.pose.orientation.x = 0.0
-        marker1.pose.orientation.y = 0.0
-        marker1.pose.orientation.z = 0.0
-        marker1.pose.orientation.w = 1.0
+        #for simple points at each body joint
+        # for coordinate in grnd_coordinates:
+        #     point = Point()
+        #     point.x = coordinate[0].item()
+        #     point.y = coordinate[1].item()
+        #     point.z = coordinate[2].item()
+        #     marker1.points.append(point)
+
+        #for edges that connects the body joints to give a skeleton representation
+        connections = [(0, 1), (1, 2), (2, 3), (3, 4), (4, 5), (5, 6), (6, 7), (7, 8), (11, 12),(12, 13), (13, 14), (14, 15), (18,22),(18, 19), (19, 20), (20, 21), (22, 23), (23, 24), (24, 25), (26, 3), (26,27)]
+        for start_idx, end_idx in connections:
+            start_coordinate = grnd_coordinates[start_idx]
+            end_coordinate = grnd_coordinates[end_idx]
+
+            # Add start point
+            start_point = Point()
+            start_point.x = start_coordinate[0].item()
+            start_point.y = start_coordinate[1].item()
+            start_point.z = start_coordinate[2].item()
+            marker1.points.append(start_point)
+
+            # Add end point
+            end_point = Point()
+            end_point.x = end_coordinate[0].item()
+            end_point.y = end_coordinate[1].item()
+            end_point.z = end_coordinate[2].item()
+            marker1.points.append(end_point)
+        
+        # marker1.pose.orientation.x = 0.0
+        # marker1.pose.orientation.y = 0.0
+        # marker1.pose.orientation.z = 0.0
+        # marker1.pose.orientation.w = 1.0
 
         marker_publisher1.publish(marker1)
 
@@ -171,28 +193,39 @@ def body_tracking_callback(msg):
 
         marker = Marker()
         marker.header.frame_id = "depth_camera_link"
-        marker.type = Marker.SPHERE_LIST
+        marker.type = Marker.LINE_LIST
         # marker.type = 2
         marker.action = Marker.ADD
-        marker.scale.x = 0.05
-        marker.scale.y = 0.05
-        marker.scale.z = 0.05
+        marker.scale.x = 0.01
+        marker.scale.y = 0.01
+        marker.scale.z = 0.01
         marker.color.a = 1.0
-        marker.color.r = 1.0
-        marker.color.g = 0.0
+        marker.color.r = 0.0
+        marker.color.g = 1.0
         marker.color.b = 0.0
 
-        for coordinate in prediction_coordinates:
-            point = Point()
-            point.x = coordinate[0].item()
-            point.y = coordinate[1].item()
-            point.z = coordinate[2].item()
-            marker.points.append(point)
+        for start_idx, end_idx in connections:
+            start_coordinate = prediction_coordinates[start_idx]
+            end_coordinate = prediction_coordinates[end_idx]
+
+            # Add start point
+            start_point = Point()
+            start_point.x = start_coordinate[0].item()
+            start_point.y = start_coordinate[1].item()
+            start_point.z = start_coordinate[2].item()
+            marker.points.append(start_point)
+
+            # Add end point
+            end_point = Point()
+            end_point.x = end_coordinate[0].item()
+            end_point.y = end_coordinate[1].item()
+            end_point.z = end_coordinate[2].item()
+            marker.points.append(end_point)
         
-        marker.pose.orientation.x = 0.0
-        marker.pose.orientation.y = 0.0
-        marker.pose.orientation.z = 0.0
-        marker.pose.orientation.w = 1.0
+        # marker.pose.orientation.x = 0.0
+        # marker.pose.orientation.y = 0.0
+        # marker.pose.orientation.z = 0.0
+        # marker.pose.orientation.w = 1.0
 
         marker_publisher.publish(marker)
 

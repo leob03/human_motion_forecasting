@@ -1,7 +1,7 @@
 {
     "exp": "motion_pred_viz_wg_in50_out10_ks10_dctn20",
     "is_eval": false,
-    "ckpt": "./checkpoint/pretrained/h36m_3d_in50_out10_dctn20/",
+    "ckpt": "./checkpoint/pretrained/h36m_3d_in50_out10_dctn20/motion_pred_viz_wg_in50_out10_ks10_dctn20",
     "skip_rate": 1,
     "skip_rate_test": 5,
     "in_features": 66,

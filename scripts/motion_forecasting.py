@@ -103,8 +103,8 @@ def run_model(net_pred, optimizer=None, is_train=0, input_data=None, epo=1, opt=
     # print(p3d_h36.shape)
 
     mpjpe_p3d_h36 = torch.sum(torch.mean(torch.norm(p3d_h36[:, in_n:] - p3d_out, dim=3), dim=2), dim=0)
-    print(p3d_h36[:, -9])
-    print(p3d_out[:,-9])
+    # print(p3d_h36[:, -9])
+    # print(p3d_out[:,-9])
     # print(mpjpe_p3d_h36.shape)
     # print(mpjpe_p3d_h36)
     m_p3d_h36 += mpjpe_p3d_h36.cpu().data.numpy()
@@ -112,7 +112,7 @@ def run_model(net_pred, optimizer=None, is_train=0, input_data=None, epo=1, opt=
     ###
 
     ret = {}
-    m_p3d_h36 = m_p3d_h36 / n
+    m_p3d_h36 = m_p3d_h36 *256
     for j in range(out_n):
         ret["#{:d}".format(titles[j])] = m_p3d_h36[j]
     return ret
@@ -143,7 +143,7 @@ def body_tracking_callback(msg):
         # errs = np.zeros([len(acts) + 1, opt.output_n])
 
         ret_test = run_model(net_pred, is_train=3, input_data=input_data, opt=opt)
-        print('testing error: {:.3f}'.format(ret_test['#1']))
+        print('testing error: {:.3f}'.format(ret_test['#10']))
         # print(ret_test)
         # ret_log = np.array([])
         # for k in ret_test.keys():
