@@ -45,7 +45,7 @@ parser.add_argument('--use_scheduler',type=bool,default=True,help= 'use MultiSte
 parser.add_argument('--milestones',type=list,default=[15,25,35,40],help= 'the epochs after which the learning rate is adjusted by gamma')
 parser.add_argument('--gamma',type=float,default=0.1,help= 'gamma correction to the learning rate, after reaching the milestone epochs')
 parser.add_argument('--clip_grad',type=float,default=None,help= 'select max norm to clip gradients')
-parser.add_argument('--model_path',type=str,default='./checkpoint/STS_GCN/CKPT_3D_H36M',help= 'directory with the models checkpoints ')
+parser.add_argument('--model_path',type=str,default='/home/bartonlab-user/workspace/src/human_motion_forecasting/scripts/checkpoint/STS_GCN/CKPT_3D_H36M',help= 'directory with the models checkpoints ')
 
 
 #FLAGS FOR THE VISUALIZATION
