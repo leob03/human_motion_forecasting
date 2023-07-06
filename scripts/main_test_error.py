@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-#only for the predictions, without comparisons (ground truth)
+#only for the predictions error, without comparisons (ground truth) and no publication on RVIZ
 
 import rospy
 from std_msgs.msg import String
@@ -125,7 +125,7 @@ def run_model(net_pred, optimizer=None, is_train=0, input_data=None, epo=1, opt=
 
 def body_tracking_callback(msg):
     
-    global frame_count, start_timestamp
+    global frame_count, start_timestamp, past_frames
 
     marker_array = msg.markers
     coordinates = [[marker.pose.position.x, marker.pose.position.y, marker.pose.position.z]
@@ -140,6 +140,11 @@ def body_tracking_callback(msg):
     frame_count +=1
 
     if frame_count == num_frames:
+
+        if frame_count > num_new_frames:
+            input_data = torch.cat((past_frames, processed_data[:,num_frames-num_new_frames:]), dim=1)
+        else:
+            input_data = processed_data
 
         input_data = processed_data.view(batch_size, num_frames, num_joints*3)
 
@@ -161,8 +166,12 @@ def body_tracking_callback(msg):
         # value = np.concatenate([acts, errs.astype(np.str)], axis=1)
         # # log.save_csv_log(opt, head, value, is_create=True, file_name='test_pre_action')
 
-        frame_count = 0
+        frame_count = num_frames - num_new_frames
         processed_data.zero_()
+
+        if num_new_frames < num_frames:
+            past_frames = input_data[:, num_new_frames:]
+        
         start_timestamp = time.time()
 
 
