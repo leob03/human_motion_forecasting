@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+#only for the predictions, without comparisons (ground truth)
 
 import rospy
 from std_msgs.msg import String
@@ -25,6 +26,9 @@ from utils import log
 batch_size = 1
 num_frames = 60
 num_joints = 32
+num_new_frames = 10  # Number of new frames to collect in each iteration
+
+
 
 opt = Options().parse()
 
@@ -50,6 +54,8 @@ net_pred.load_state_dict(ckpt['state_dict'])
 print(">>> ckpt len loaded (epoch: {} | err: {})".format(ckpt['epoch'], ckpt['err']))
 
 processed_data = torch.zeros(batch_size, num_frames, num_joints*3)
+past_frames = torch.zeros(batch_size, num_frames - num_new_frames, num_joints*3)  # Store past frames
+
 
 frame_count = 0
 start_timestamp = time.time()
