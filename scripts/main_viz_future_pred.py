@@ -43,8 +43,8 @@ net_pred = AttModel.AttModel(in_features=in_features, kernel_size=kernel_size, d
                             num_stage=opt.num_stage, dct_n=opt.dct_n)
 net_pred.cuda()
 # model_path_len = '{}/ckpt_best.pth.tar'.format(opt.ckpt)
-model_path_len = os.path.join('/home/bartonlab-user/workspace/src/azure_bodytracking/scripts/checkpoint/main_h36m_3d_in50_out10_ks10_dctn20/ckpt_best.pth.tar')
-# model_path_len = os.path.join('/home/bartonlab-user/workspace/src/azure_bodytracking/scripts/checkpoint/pretrained/h36m_3d_in50_out10_dctn20/ckpt_best.pth.tar')
+model_path_len = os.path.join('/home/bartonlab-user/workspace/src/azure_bodytracking/scripts/checkpoint/HRI/main_h36m_3d_in50_out10_ks10_dctn20/ckpt_best.pth.tar')
+# model_path_len = os.path.join('/home/bartonlab-user/workspace/src/azure_bodytracking/scripts/checkpoint/HRI/pretrained/h36m_3d_in50_out10_dctn20/ckpt_best.pth.tar')
 print(">>> loading ckpt len from '{}'".format(model_path_len))
 ckpt = torch.load(model_path_len)
 start_epoch = ckpt['epoch'] + 1

@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-#only for the predictions error, without comparisons (ground truth) and no publication on RVIZ
+#predictions error of STS-GCN (no viz)
 
 import rospy
 from std_msgs.msg import String
@@ -18,10 +18,11 @@ import h5py
 import torch.optim as optim
 
 from utils.h36motion3d import Datasets
-from model import AttModel
+from model import model_STSGCN
 from utils.opt import Options
 from utils import util
 from utils import log
+from utils.parser import args
 
 batch_size = 1
 num_frames = 60
@@ -37,13 +38,18 @@ start_epoch = 1
 # opt.is_eval = True
 print('>>> create models')
 in_features = 66
+input_dim = 3
 d_model = opt.d_model
 kernel_size = opt.kernel_size
-net_pred = AttModel.AttModel(in_features=in_features, kernel_size=kernel_size, d_model=d_model,
-                            num_stage=opt.num_stage, dct_n=opt.dct_n)
-net_pred.cuda()
+
+
+device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+net_pred = model_STSGCN.Model(args.input_dim,args.input_n, args.output_n,args.st_gcnn_dropout,args.joints_to_consider,args.n_tcnn_layers,args.tcnn_kernel_size,args.tcnn_dropout).to(device)
+
+
+
 # model_path_len = '{}/ckpt_best.pth.tar'.format(opt.ckpt)
-model_path_len = os.path.join('/home/bartonlab-user/workspace/src/azure_bodytracking/scripts/checkpoint/HRI/main_h36m_3d_in50_out10_ks10_dctn20/ckpt_best.pth.tar')
+model_path_len = os.path.join('/home/bartonlab-user/workspace/src/azure_bodytracking/scripts/checkpoint/main_h36m_3d_in50_out10_ks10_dctn20/ckpt_best.pth.tar')
 # model_path_len = os.path.join('/home/bartonlab-user/workspace/src/azure_bodytracking/scripts/checkpoint/pretrained/h36m_3d_in50_out10_dctn20/ckpt_best.pth.tar')
 print(">>> loading ckpt len from '{}'".format(model_path_len))
 ckpt = torch.load(model_path_len)

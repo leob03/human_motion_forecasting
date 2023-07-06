@@ -23,7 +23,7 @@ class Options:
         self.parser.add_argument('--exp', type=str, default='test', help='ID of experiment')
         self.parser.add_argument('--is_eval', dest='is_eval', action='store_true',
                                  help='whether it is to evaluate the model')
-        self.parser.add_argument('--ckpt', type=str, default='./checkpoint/pretrained/h36m_3d_in50_out10_dctn20/', help='path to save checkpoint')
+        self.parser.add_argument('--ckpt', type=str, default='./checkpoint/HRI/pretrained/h36m_3d_in50_out10_dctn20/', help='path to save checkpoint')
         self.parser.add_argument('--skip_rate', type=int, default=1, help='skip rate of samples')
         self.parser.add_argument('--skip_rate_test', type=int, default=5, help='skip rate of samples for test')
 
@@ -36,7 +36,7 @@ class Options:
         self.parser.add_argument('--num_stage', type=int, default=12, help='size of each model layer')
         self.parser.add_argument('--d_model', type=int, default=256, help='past frame number')
         self.parser.add_argument('--kernel_size', type=int, default=10, help='past frame number')
-        # self.parser.add_argument('--drop_out', type=float, default=0.5, help='drop out probability')
+        self.parser.add_argument('--tcnn_dropout', type=float, default=0.0, help='drop out probability')
 
         # ===============================================================
         #                     Running options
@@ -51,6 +51,7 @@ class Options:
         self.parser.add_argument('--test_batch_size', type=int, default=1)
         self.parser.add_argument('--is_load', dest='is_load', action='store_true',
                                  help='whether to load existing model')
+        self.parser.add_argument('--input_dim',type=int,default=3,help= 'dimensions of the input coordinates')
 
     def _print(self):
         print("\n==================Options=================")
