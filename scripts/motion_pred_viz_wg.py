@@ -26,6 +26,7 @@ from utils import log
 batch_size = 1
 num_frames = 60
 num_joints = 32
+num_new_frames = 10  # Number of new frames to collect in each iteration
 
 opt = Options().parse()
 
@@ -51,6 +52,8 @@ net_pred.load_state_dict(ckpt['state_dict'])
 print(">>> ckpt len loaded (epoch: {} | err: {})".format(ckpt['epoch'], ckpt['err']))
 
 processed_data = torch.zeros(batch_size, num_frames, num_joints*3)
+past_frames = torch.zeros(batch_size, num_frames - num_new_frames, num_joints*3)  # Store past frames
+
 
 frame_count = 0
 start_timestamp = time.time()
@@ -58,7 +61,7 @@ start_timestamp = time.time()
 
 def body_tracking_callback(msg):
     
-    global frame_count, start_timestamp
+    global frame_count, start_timestamp, past_frames
 
     marker_array = msg.markers
 
@@ -75,7 +78,12 @@ def body_tracking_callback(msg):
 
     if frame_count == num_frames:
 
-        input_data = processed_data.view(1, num_frames, num_joints*3)
+        if frame_count > num_new_frames:
+            input_data = torch.cat((past_frames, processed_data[:,num_frames-num_new_frames:]), dim=1)
+        else:
+            input_data = processed_data
+
+        input_data = input_data.view(1, num_frames, num_joints*3)
 
         # errs = np.zeros([len(acts) + 1, opt.output_n])
 
@@ -90,15 +98,15 @@ def body_tracking_callback(msg):
         n = 0
         in_n = opt.input_n
         out_n = opt.output_n
-        dim_used = np.array([6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 21, 22, 23, 24, 25,
-                            26, 27, 28, 29, 30, 31, 32, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45,
+        dim_used = np.array([0,1,2,6, 7, 8, 9, 10, 11, 15, 16, 17, 18, 19, 20, 24, 25,
+                            26, 27, 28, 29, 30, 31, 32, 36, 37, 38, 39, 40, 41, 45,
                             46, 47, 51, 52, 53, 54, 55, 56, 57, 58, 59, 63, 64, 65, 66, 67, 68,
-                            75, 76, 77, 78, 79, 80, 81, 82, 83, 87, 88, 89, 90, 91, 92])
+                            69, 70, 71, 75, 76, 77, 78, 79, 80, 81, 82, 83, 87, 88, 89, 90, 91, 92])
         seq_in = opt.kernel_size
         # joints at same loc
-        joint_to_ignore = np.array([16, 20, 23, 24, 28, 31])
+        joint_to_ignore = np.array([16, 20, 24, 24, 28, 31])
         index_to_ignore = np.concatenate((joint_to_ignore * 3, joint_to_ignore * 3 + 1, joint_to_ignore * 3 + 2))
-        joint_equal = np.array([13, 19, 22, 13, 27, 30])
+        joint_equal = np.array([13, 19, 23, 13, 27, 30])
         index_to_equal = np.concatenate((joint_equal * 3, joint_equal * 3 + 1, joint_equal * 3 + 2))
 
         itera = 3
@@ -161,7 +169,9 @@ def body_tracking_callback(msg):
         #     marker1.points.append(point)
 
         #for edges that connects the body joints to give a skeleton representation
-        connections = [(0, 1), (1, 2), (2, 3), (3, 4), (4, 5), (5, 6), (6, 7), (7, 8), (11, 12),(12, 13), (13, 14), (14, 15), (18,22),(18, 19), (19, 20), (20, 21), (22, 23), (23, 24), (24, 25), (26, 3), (26,27)]
+        # connections = [(0, 1), (1, 2), (2, 3), (3, 5), (5, 6), (6, 7), (7, 8), (11, 12),(12, 13), (13, 14), (14, 15), (18,22),(18, 19), (19, 20), (20, 21), (22, 23), (23, 24), (24, 25), (26, 3), (26,27)]
+        connections = [(0, 2), (2, 3), (3, 5), (5, 6),(6, 8),(3,12),(12, 13), (13, 15), (18,22),(18, 19), (19,21), (22,23),(23, 25), (26, 3), (26,27)]
+
         for start_idx, end_idx in connections:
             start_coordinate = grnd_coordinates[start_idx]
             end_coordinate = grnd_coordinates[end_idx]
@@ -234,8 +244,12 @@ def body_tracking_callback(msg):
         print("Elapsed time:", elapsed_time)
 
         #update the counters
-        frame_count = 0
+        frame_count = num_frames - num_new_frames
         processed_data.zero_()
+
+        if num_new_frames < num_frames:
+            past_frames = input_data[:, num_new_frames:]
+
         start_timestamp = time.time()
 
 
