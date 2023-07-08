@@ -8,7 +8,7 @@ import torch
 import time
 
 import sys
-sys.path.append('/home/bartonlab-user/workspace/src/azure_bodytracking/scripts')
+sys.path.append('/home/bartonlab-user/workspace/src/human_motion_forecasting/scripts')
 import os
 
 from torch.utils.data import DataLoader
@@ -115,12 +115,11 @@ def run_model(net_pred, optimizer=None, is_train=0, input_data=None, epo=1, opt=
     p3d_h36 = sequences_gt.view(-1,args.output_n,32,3)
 
 
-    batch_pred=all_joints_seq.view(-1,args.output_n,32,3).contiguous().view(-1,3)
-    batch_gt=sequences_gt.view(-1,args.output_n,32,3).contiguous().view(-1,3)
+    # batch_pred=all_joints_seq.view(-1,args.output_n,32,3).contiguous().view(-1,3)
+    # batch_gt=sequences_gt.view(-1,args.output_n,32,3).contiguous().view(-1,3)
 
-    mpjpe_p3d_h36 =torch.mean(torch.norm(batch_gt-batch_pred,2,1))
-
-    # mpjpe_p3d_h36 = torch.sum(torch.mean(torch.norm(p3d_h36[:, in_n:] - p3d_out, dim=3), dim=2), dim=0)
+    # mpjpe_p3d_h36 =torch.mean(torch.norm(batch_gt-batch_pred,2,1))
+    mpjpe_p3d_h36 = torch.sum(torch.mean(torch.norm(p3d_h36 - p3d_out, dim=3), dim=2), dim=0)
     m_p3d_h36 += mpjpe_p3d_h36.cpu().data.numpy()
 
     ###

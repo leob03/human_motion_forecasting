@@ -79,8 +79,6 @@ def run_model(net_pred, optimizer=None, is_train=0, input_data=None, epo=1, opt=
     index_to_equal = np.concatenate((joint_equal * 3, joint_equal * 3 + 1, joint_equal * 3 + 2))
 
     itera = 3
-    idx = np.expand_dims(np.arange(seq_in + out_n), axis=1) + (
-            out_n - seq_in + np.expand_dims(np.arange(itera), axis=0))
     
     batch_size, seq_n, _ = input_data.shape
 
@@ -89,8 +87,8 @@ def run_model(net_pred, optimizer=None, is_train=0, input_data=None, epo=1, opt=
     p3d_h36 = input_data.float().cuda()
     # print(p3d_h36.shape)
     # print(p3d_h36[0,0,:])
-    p3d_sup = p3d_h36.clone()[:, :, dim_used][:, -out_n - seq_in:].reshape(
-        [-1, seq_in + out_n, len(dim_used) // 3, 3])
+    # p3d_sup = p3d_h36.clone()[:, :, dim_used][:, -out_n - seq_in:].reshape(
+    #     [-1, seq_in + out_n, len(dim_used) // 3, 3])
     p3d_src = p3d_h36.clone()[:, :, dim_used]
     # p3d_src = p3d_src.permute(1, 0, 2)  # seq * n * dim
     # p3d_src = p3d_src[:in_n]
@@ -106,8 +104,7 @@ def run_model(net_pred, optimizer=None, is_train=0, input_data=None, epo=1, opt=
     # print(p3d_out.shape)
 
     p3d_h36 = p3d_h36.reshape([-1, in_n + out_n, 32, 3])
-    # print(p3d_h36.shape)
-
+    
     mpjpe_p3d_h36 = torch.sum(torch.mean(torch.norm(p3d_h36[:, in_n:] - p3d_out, dim=3), dim=2), dim=0)
     # print(p3d_h36[:, -9])
     # print(p3d_out[:,-9])
