@@ -25,7 +25,7 @@ from utils import log
 from utils.parser import args
 
 batch_size = 1
-num_frames = 60
+num_frames = 20
 num_joints = 32
 num_new_frames = 10  # Number of new frames to collect in each iteration
 
@@ -121,7 +121,6 @@ def run_model(net_pred, optimizer=None, is_train=0, input_data=None, epo=1, opt=
     # mpjpe_p3d_h36 =torch.mean(torch.norm(batch_gt-batch_pred,2,1))
     mpjpe_p3d_h36 = torch.sum(torch.mean(torch.norm(p3d_h36 - p3d_out, dim=3), dim=2), dim=0)
     m_p3d_h36 += mpjpe_p3d_h36.cpu().data.numpy()
-
     ###
 
     ret = {}
