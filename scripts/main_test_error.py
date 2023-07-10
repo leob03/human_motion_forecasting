@@ -100,16 +100,17 @@ def run_model(net_pred, optimizer=None, is_train=0, input_data=None, epo=1, opt=
     p3d_out = p3d_h36.clone()[:, in_n:in_n + out_n]
     p3d_out[:, :, dim_used] = p3d_out_all
     p3d_out[:, :, index_to_ignore] = p3d_out[:, :, index_to_equal]
-    p3d_out = p3d_out.reshape([-1, out_n, 32, 3])
-    # print(p3d_out.shape)
 
-    p3d_h36 = p3d_h36.reshape([-1, in_n + out_n, 32, 3])
-    
-    mpjpe_p3d_h36 = torch.sum(torch.mean(torch.norm(p3d_h36[:, in_n:] - p3d_out, dim=3), dim=2), dim=0)
-    # print(p3d_h36[:, -9])
-    # print(p3d_out[:,-9])
-    # print(mpjpe_p3d_h36.shape)
-    # print(mpjpe_p3d_h36)
+    #method in HRI
+    # p3d_out = p3d_out.reshape([-1, out_n, 32, 3])
+    # p3d_h36 = p3d_h36.reshape([-1, in_n + out_n, 32, 3])
+    # mpjpe_p3d_h36 = torch.sum(torch.mean(torch.norm(p3d_h36[:, in_n:] - p3d_out, dim=3), dim=2), dim=0)
+
+    #method in STS_GCN
+    batch_pred=p3d_out.view(-1,out_n,32,3).contiguous().view(-1,3)
+    batch_gt= p3d_h36[:, in_n:].view(-1, out_n,32,3).contiguous().view(-1,3)
+    mpjpe_p3d_h36 =torch.mean(torch.norm(batch_gt-batch_pred,2,1))
+
     m_p3d_h36 += mpjpe_p3d_h36.cpu().data.numpy()
 
     ###
