@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 #only for the predictions error, without comparisons (ground truth) and no publication on RVIZ
 
+from __future__ import print_function, absolute_import, division
 import rospy
 from std_msgs.msg import String
 from visualization_msgs.msg import MarkerArray
@@ -30,7 +31,7 @@ import utils.data_utils as data_utils
 from utils.h36motion3d import H36motion3D
 
 batch_size = 1
-num_frames = 60
+num_frames = 20
 num_joints = 32
 num_new_frames = 10  # Number of new frames to collect in each iteration
 
@@ -40,23 +41,28 @@ opt = Options().parse()
 
 lr_now = opt.lr_now
 start_epoch = 1
-# opt.is_eval = True
+opt.is_eval = True
+# save option in log
+script_name = os.path.basename(__file__).split('.')[0]
+script_name = script_name + '_3D_in{:d}_out{:d}_dct_n_{:d}'.format(opt.input_n, opt.output_n, opt.dct_n)
+
 print('>>> create models')
-in_features = 66
-d_model = opt.d_model
-kernel_size = opt.kernel_size
-net_pred = AttModel.AttModel(in_features=in_features, kernel_size=kernel_size, d_model=d_model,
-                            num_stage=opt.num_stage, dct_n=opt.dct_n)
-net_pred.cuda()
+nput_n = opt.input_n
+output_n = opt.output_n
+dct_n = opt.dct_n
+sample_rate = opt.sample_rate
+
+model = nnmodel.GCN(input_feature=dct_n, hidden_feature=opt.linear_size, p_dropout=opt.dropout,
+                    num_stage=opt.num_stage, node_n=66)
+model.cuda()
 # model_path_len = '{}/ckpt_best.pth.tar'.format(opt.ckpt)
-model_path_len = os.path.join('/home/bartonlab-user/workspace/src/human_motion_forecasting/scripts/checkpoint/HRI/main_h36m_3d_in50_out10_ks10_dctn20/ckpt_best.pth.tar')
-# model_path_len = os.path.join('/home/bartonlab-user/workspace/src/azure_bodytracking/scripts/checkpoint/pretrained/h36m_3d_in50_out10_dctn20/ckpt_best.pth.tar')
+model_path_len = os.path.join('/home/bartonlab-user/workspace/src/human_motion_forecasting/scripts/checkpoint/LTD/pretrained/h36m3D_in10_out25_dctn30.pth.tar')
 print(">>> loading ckpt len from '{}'".format(model_path_len))
 ckpt = torch.load(model_path_len)
 start_epoch = ckpt['epoch'] + 1
 err_best = ckpt['err']
 lr_now = ckpt['lr']
-net_pred.load_state_dict(ckpt['state_dict'])
+model.load_state_dict(ckpt['state_dict'])
 print(">>> ckpt len loaded (epoch: {} | err: {})".format(ckpt['epoch'], ckpt['err']))
 
 processed_data = torch.zeros(batch_size, num_frames, num_joints*3)
@@ -66,8 +72,8 @@ past_frames = torch.zeros(batch_size, num_frames - num_new_frames, num_joints*3)
 frame_count = 0
 start_timestamp = time.time()
 
-def run_model(net_pred, optimizer=None, is_train=0, input_data=None, epo=1, opt=None):
-    net_pred.eval()
+def run_model(model, optimizer=None, is_train=0, input_data=None, epo=1, opt=None):
+    model.eval()
     titles = np.array(range(opt.output_n)) + 1
     m_p3d_h36 = np.zeros([opt.output_n])
     n = 0
@@ -83,39 +89,45 @@ def run_model(net_pred, optimizer=None, is_train=0, input_data=None, epo=1, opt=
     index_to_ignore = np.concatenate((joint_to_ignore * 3, joint_to_ignore * 3 + 1, joint_to_ignore * 3 + 2))
     joint_equal = np.array([13, 19, 22, 13, 27, 30])
     index_to_equal = np.concatenate((joint_equal * 3, joint_equal * 3 + 1, joint_equal * 3 + 2))
-
-    itera = 3
     
     batch_size, seq_n, _ = input_data.shape
+    dim_used_len = len(dim_used)
 
     n += batch_size
     bt = time.time()
     p3d_h36 = input_data.float().cuda()
-    # print(p3d_h36.shape)
-    # print(p3d_h36[0,0,:])
-    # p3d_sup = p3d_h36.clone()[:, :, dim_used][:, -out_n - seq_in:].reshape(
-    #     [-1, seq_in + out_n, len(dim_used) // 3, 3])
+
     p3d_src = p3d_h36.clone()[:, :, dim_used]
-    # p3d_src = p3d_src.permute(1, 0, 2)  # seq * n * dim
-    # p3d_src = p3d_src[:in_n]
-    p3d_out_all = net_pred(p3d_src*1000, input_n=in_n, output_n=10, itera=itera)
+
+    #First I need to transform p3d_src in dct coeficients before I give it to the predictor
+
+    p3d_out_all = model(p3d_src*1000)
     p3d_out_all = p3d_out_all*0.001
 
-    p3d_out_all = p3d_out_all[:, seq_in:].transpose(1, 2).reshape([batch_size, 10 * itera, -1])[:, :out_n]
+    _, idct_m = data_utils.get_dct_matrix(seq_n)
+    idct_m = torch.from_numpy(idct_m).float().cuda()
+    outputs_t = p3d_out_all.view(-1, dct_n).transpose(0, 1)
+    outputs_3d = torch.matmul(idct_m[:, 0:dct_n], outputs_t).transpose(0, 1).contiguous().view(-1, dim_used_len,seq_n).transpose(1,2)
+    pred_3d = p3d_h36.clone()
 
-    p3d_out = p3d_h36.clone()[:, in_n:in_n + out_n]
-    p3d_out[:, :, dim_used] = p3d_out_all
-    p3d_out[:, :, index_to_ignore] = p3d_out[:, :, index_to_equal]
+
+    pred_3d[:, :, dim_used] = outputs_3d
+    pred_3d[:, :, index_to_ignore] = pred_3d[:, :, index_to_equal]
+    pred_p3d = pred_3d.contiguous().view(n, seq_n, -1, 3)[:, in_n:, :, :]
+    targ_p3d = p3d_h36.contiguous().view(n, seq_n, -1, 3)[:, in_n:, :, :]
+
+    # p3d_out_all = p3d_out_all[:, seq_in:].transpose(1, 2).reshape([batch_size, 10 * itera, -1])[:, :out_n]
+
+    # p3d_out = p3d_h36.clone()[:, in_n:in_n + out_n]
+    # p3d_out[:, :, dim_used] = p3d_out_all
+    # p3d_out[:, :, index_to_ignore] = p3d_out[:, :, index_to_equal]
 
     #method in HRI
-    # p3d_out = p3d_out.reshape([-1, out_n, 32, 3])
-    # p3d_h36 = p3d_h36.reshape([-1, in_n + out_n, 32, 3])
-    # mpjpe_p3d_h36 = torch.sum(torch.mean(torch.norm(p3d_h36[:, in_n:] - p3d_out, dim=3), dim=2), dim=0)
+    # mpjpe_p3d_h36 = torch.sum(torch.mean(torch.norm(pred_p3d - targ_p3d, dim=3), dim=2), dim=0)
 
     #method in STS_GCN
-    batch_pred=p3d_out.view(-1,out_n,32,3).contiguous().view(-1,3)
-    batch_gt= p3d_h36[:, in_n:].view(-1, out_n,32,3).contiguous().view(-1,3)
-    mpjpe_p3d_h36 =torch.mean(torch.norm(batch_gt-batch_pred,2,1))
+
+    mpjpe_p3d_h36 =torch.mean(torch.norm(pred_p3d-targ_p3d,2,1))
 
     m_p3d_h36 += mpjpe_p3d_h36.cpu().data.numpy()
 
@@ -157,7 +169,7 @@ def body_tracking_callback(msg):
 
         # errs = np.zeros([len(acts) + 1, opt.output_n])
 
-        ret_test = run_model(net_pred, is_train=3, input_data=input_data, opt=opt)
+        ret_test = run_model(model, is_train=3, input_data=input_data, opt=opt)
         print('testing error: {:.3f}'.format(ret_test['#10']))
         # print(ret_test)
         # ret_log = np.array([])
