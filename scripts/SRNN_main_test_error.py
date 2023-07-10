@@ -128,7 +128,7 @@ def create_model(actions, sampling=False):
   model = seq2seq_model.Seq2SeqModel(
       args.architecture,
       args.seq_length_in if not sampling else 50,
-      args.seq_length_out if not sampling else 100,
+      args.seq_length_out if not sampling else 10,
       args.size, # hidden layer size
       args.num_layers,
       args.max_gradient_norm,
@@ -151,10 +151,177 @@ def create_model(actions, sampling=False):
     model.target_seq_len = 100
   return model
 
+# def define_actions( action ):
+#   """
+#   Define the list of actions we are using.
+
+#   Args
+#     action: String with the passed action. Could be "all"
+#   Returns
+#     actions: List of strings of actions
+#   Raises
+#     ValueError if the action is not included in H3.6M
+#   """
+
+#   actions = ["walking", "eating", "smoking", "discussion",  "directions",
+#               "greeting", "phoning", "posing", "purchases", "sitting",
+#               "sittingdown", "takingphoto", "waiting", "walkingdog",
+#               "walkingtogether"]
+
+#   if action in actions:
+#     return [action]
+
+#   if action == "all":
+#     return actions
+
+#   if action == "all_srnn":
+#     return ["walking", "eating", "smoking", "discussion"]
+
+#   raise( ValueError, "Unrecognized action: %d" % action )
 
 
+# def get_srnn_gts( actions, model, test_set, data_mean, data_std, dim_to_ignore, one_hot, to_euler=True ):
+#   """
+#   Get the ground truths for srnn's sequences, and convert to Euler angles.
+#   (the error is always computed in Euler angles).
+
+#   Args
+#     actions: a list of actions to get ground truths for.
+#     model: training model we are using (we only use the "get_batch" method).
+#     test_set: dictionary with normalized training data.
+#     data_mean: d-long vector with the mean of the training data.
+#     data_std: d-long vector with the standard deviation of the training data.
+#     dim_to_ignore: dimensions that we are not using to train/predict.
+#     one_hot: whether the data comes with one-hot encoding indicating action.
+#     to_euler: whether to convert the angles to Euler format or keep thm in exponential map
+
+#   Returns
+#     srnn_gts_euler: a dictionary where the keys are actions, and the values
+#       are the ground_truth, denormalized expected outputs of srnns's seeds.
+#   """
+#   srnn_gts_euler = {}
+
+#   for action in actions:
+
+#     srnn_gt_euler = []
+#     _, _, srnn_expmap = model.get_batch_srnn( test_set, action )
+
+#     # expmap -> rotmat -> euler
+#     for i in np.arange( srnn_expmap.shape[0] ):
+#       denormed = data_utils_srnn.unNormalizeData(srnn_expmap[i,:,:], data_mean, data_std, dim_to_ignore, actions, one_hot )
+
+#       if to_euler:
+#         for j in np.arange( denormed.shape[0] ):
+#           for k in np.arange(3,97,3):
+#             denormed[j,k:k+3] = data_utils_srnn.rotmat2euler( data_utils_srnn.expmap2rotmat( denormed[j,k:k+3] ))
+
+#       srnn_gt_euler.append( denormed );
+
+#     # Put back in the dictionary
+#     srnn_gts_euler[action] = srnn_gt_euler
+
+#   return srnn_gts_euler
 
 
+def sample():
+  """Sample predictions for srnn's seeds"""
+#   actions = define_actions( args.action )
+
+  if True:
+    # === Create the model ===
+    print("Creating %d layers of %d units." % (args.num_layers, args.size))
+    sampling     = True
+    model = create_model(actions, sampling)
+    if not args.use_cpu:
+        model = model.cuda()
+    print("Model created")
+
+    # Load all the data
+    # train_set, test_set, data_mean, data_std, dim_to_ignore, dim_to_use = read_all_data(
+    #   actions, args.seq_length_in, args.seq_length_out, args.data_dir, not args.omit_one_hot )
+
+    # === Read and denormalize the gt with srnn's seeds, as we'll need them
+    # many times for evaluation in Euler Angles ===
+    srnn_gts_expmap = get_srnn_gts( actions, model, test_set, data_mean,
+                              data_std, dim_to_ignore, not args.omit_one_hot, to_euler=False )
+    srnn_gts_euler = get_srnn_gts( actions, model, test_set, data_mean,
+                              data_std, dim_to_ignore, not args.omit_one_hot )
+
+    # Clean and create a new h5 file of samples
+    SAMPLES_FNAME = 'samples.h5'
+    try:
+      os.remove( SAMPLES_FNAME )
+    except OSError:
+      pass
+
+    # Predict and save for each action
+    for action in actions:
+
+      # Make prediction with srnn' seeds
+      encoder_inputs, decoder_inputs, decoder_outputs = model.get_batch_srnn( test_set, action )
+
+      encoder_inputs = torch.from_numpy(encoder_inputs).float()
+      decoder_inputs = torch.from_numpy(decoder_inputs).float()
+      decoder_outputs = torch.from_numpy(decoder_outputs).float()
+      if not args.use_cpu:
+        encoder_inputs = encoder_inputs.cuda()
+        decoder_inputs = decoder_inputs.cuda()
+        decoder_outputs = decoder_outputs.cuda()
+
+      srnn_poses = model(encoder_inputs, decoder_inputs)
+
+      srnn_loss = (srnn_poses - decoder_outputs)**2
+      srnn_loss.cpu().data.numpy()
+      srnn_loss = srnn_loss.mean()
+
+      srnn_poses = srnn_poses.cpu().data.numpy()
+      srnn_poses = srnn_poses.transpose([1,0,2])
+
+      srnn_loss = srnn_loss.cpu().data.numpy()
+      # denormalizes too
+      srnn_pred_expmap = data_utils_srnn.revert_output_format(srnn_poses, data_mean, data_std, dim_to_ignore, actions, not args.omit_one_hot )
+
+      # Save the samples
+      with h5py.File( SAMPLES_FNAME, 'a' ) as hf:
+        for i in np.arange(8):
+          # Save conditioning ground truth
+          node_name = 'expmap/gt/{1}_{0}'.format(i, action)
+          hf.create_dataset( node_name, data=srnn_gts_expmap[action][i] )
+          # Save prediction
+          node_name = 'expmap/preds/{1}_{0}'.format(i, action)
+          hf.create_dataset( node_name, data=srnn_pred_expmap[i] )
+
+      # Compute and save the errors here
+      mean_errors = np.zeros( (len(srnn_pred_expmap), srnn_pred_expmap[0].shape[0]) )
+
+      for i in np.arange(8):
+
+        eulerchannels_pred = srnn_pred_expmap[i]
+
+        for j in np.arange( eulerchannels_pred.shape[0] ):
+          for k in np.arange(3,97,3):
+            eulerchannels_pred[j,k:k+3] = data_utils_srnn.rotmat2euler(
+              data_utils_srnn.expmap2rotmat( eulerchannels_pred[j,k:k+3] ))
+
+        eulerchannels_pred[:,0:6] = 0
+
+        # Pick only the dimensions with sufficient standard deviation. Others are ignored.
+        idx_to_use = np.where( np.std( eulerchannels_pred, 0 ) > 1e-4 )[0]
+
+        euc_error = np.power( srnn_gts_euler[action][i][:,idx_to_use] - eulerchannels_pred[:,idx_to_use], 2)
+        euc_error = np.sum(euc_error, 1)
+        euc_error = np.sqrt( euc_error )
+        mean_errors[i,:] = euc_error
+
+      mean_mean_errors = np.mean( mean_errors, 0 )
+      print( action )
+      print( ','.join(map(str, mean_mean_errors.tolist() )) )
+
+      with h5py.File( SAMPLES_FNAME, 'a' ) as hf:
+        node_name = 'mean_{0}_error'.format( action )
+        hf.create_dataset( node_name, data=mean_mean_errors )
+
+  return
 
 
 
@@ -200,6 +367,7 @@ def run_model(net_pred, optimizer=None, is_train=0, input_data=None, epo=1, opt=
                          46, 47, 51, 52, 53, 54, 55, 56, 57, 58, 59, 63, 64, 65, 66, 67, 68,
                          75, 76, 77, 78, 79, 80, 81, 82, 83, 87, 88, 89, 90, 91, 92])
     seq_in = opt.kernel_size
+
     # joints at same loc
     joint_to_ignore = np.array([16, 20, 23, 24, 28, 31])
     index_to_ignore = np.concatenate((joint_to_ignore * 3, joint_to_ignore * 3 + 1, joint_to_ignore * 3 + 2))
@@ -213,13 +381,9 @@ def run_model(net_pred, optimizer=None, is_train=0, input_data=None, epo=1, opt=
     n += batch_size
     bt = time.time()
     p3d_h36 = input_data.float().cuda()
-    # print(p3d_h36.shape)
-    # print(p3d_h36[0,0,:])
-    # p3d_sup = p3d_h36.clone()[:, :, dim_used][:, -out_n - seq_in:].reshape(
-    #     [-1, seq_in + out_n, len(dim_used) // 3, 3])
+
     p3d_src = p3d_h36.clone()[:, :, dim_used]
-    # p3d_src = p3d_src.permute(1, 0, 2)  # seq * n * dim
-    # p3d_src = p3d_src[:in_n]
+
     p3d_out_all = net_pred(p3d_src*1000, input_n=in_n, output_n=10, itera=itera)
     p3d_out_all = p3d_out_all*0.001
 
@@ -229,15 +393,11 @@ def run_model(net_pred, optimizer=None, is_train=0, input_data=None, epo=1, opt=
     p3d_out[:, :, dim_used] = p3d_out_all
     p3d_out[:, :, index_to_ignore] = p3d_out[:, :, index_to_equal]
     p3d_out = p3d_out.reshape([-1, out_n, 32, 3])
-    # print(p3d_out.shape)
 
     p3d_h36 = p3d_h36.reshape([-1, in_n + out_n, 32, 3])
     
     mpjpe_p3d_h36 = torch.sum(torch.mean(torch.norm(p3d_h36[:, in_n:] - p3d_out, dim=3), dim=2), dim=0)
-    # print(p3d_h36[:, -9])
-    # print(p3d_out[:,-9])
-    # print(mpjpe_p3d_h36.shape)
-    # print(mpjpe_p3d_h36)
+
     m_p3d_h36 += mpjpe_p3d_h36.cpu().data.numpy()
 
     ###
@@ -280,16 +440,6 @@ def body_tracking_callback(msg):
 
         ret_test = run_model(net_pred, is_train=3, input_data=input_data, opt=opt)
         print('testing error: {:.3f}'.format(ret_test['#10']))
-        # print(ret_test)
-        # ret_log = np.array([])
-        # for k in ret_test.keys():
-        #     ret_log = np.append(ret_log, [ret_test[k]])
-        # errs[0] = ret_log
-
-        # errs[-1] = np.mean(errs[:-1], axis=0)
-        # acts = np.expand_dims(np.array(acts + ["average"]), axis=1)
-        # value = np.concatenate([acts, errs.astype(np.str)], axis=1)
-        # # log.save_csv_log(opt, head, value, is_create=True, file_name='test_pre_action')
 
         frame_count = num_frames - num_new_frames
         processed_data.zero_()
