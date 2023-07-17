@@ -54,7 +54,7 @@ model = nnmodel.GCN(input_feature=dct_n, hidden_feature=opt.d_model, p_dropout=o
                     num_stage=opt.num_stage, node_n=66)
 model.cuda()
 # model_path_len = '{}/ckpt_best.pth.tar'.format(opt.ckpt)
-model_path_len = os.path.join('/home/bartonlab-user/workspace/src/human_motion_forecasting/scripts/checkpoint/LTD/pretrained/h36m3D_in10_out10_dctn15.pth.tar')
+model_path_len = os.path.join('/home/bartonlab-user/workspace/src/human_motion_forecasting/scripts/checkpoint/LTD/test/ckpt_main_3d_3D_in10_out10_dct_n_20_best.pth.tar')
 print(">>> loading ckpt len from '{}'".format(model_path_len))
 ckpt = torch.load(model_path_len)
 start_epoch = ckpt['epoch'] + 1
