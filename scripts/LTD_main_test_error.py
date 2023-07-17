@@ -48,13 +48,13 @@ print('>>> create models')
 input_n = opt.input_n
 output_n = opt.output_n
 dct_n = opt.dct_n
-sample_rate = opt.sample_rate
+sample_rate = opt.skip_rate
 
-model = nnmodel.GCN(input_feature=dct_n, hidden_feature=opt.linear_size, p_dropout=opt.dropout,
+model = nnmodel.GCN(input_feature=dct_n, hidden_feature=opt.d_model, p_dropout=opt.dropout,
                     num_stage=opt.num_stage, node_n=66)
 model.cuda()
 # model_path_len = '{}/ckpt_best.pth.tar'.format(opt.ckpt)
-model_path_len = os.path.join('/home/bartonlab-user/workspace/src/human_motion_forecasting/scripts/checkpoint/LTD/pretrained/h36m3D_in10_out25_dctn30.pth.tar')
+model_path_len = os.path.join('/home/bartonlab-user/workspace/src/human_motion_forecasting/scripts/checkpoint/LTD/pretrained/h36m3D_in10_out10_dctn15.pth.tar')
 print(">>> loading ckpt len from '{}'".format(model_path_len))
 ckpt = torch.load(model_path_len)
 start_epoch = ckpt['epoch'] + 1

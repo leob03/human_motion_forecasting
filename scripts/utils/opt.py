@@ -52,6 +52,8 @@ class Options:
         self.parser.add_argument('--is_load', dest='is_load', action='store_true',
                                  help='whether to load existing model')
         self.parser.add_argument('--input_dim',type=int,default=3,help= 'dimensions of the input coordinates')
+        self.parser.add_argument('--dropout', type=float, default=0.5,
+                                 help='dropout probability, 1.0 to make no dropout')
 
     def _print(self):
         print("\n==================Options=================")
