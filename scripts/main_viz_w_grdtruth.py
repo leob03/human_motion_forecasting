@@ -53,6 +53,8 @@ lr_now = ckpt['lr']
 net_pred.load_state_dict(ckpt['state_dict'])
 print(">>> ckpt len loaded (epoch: {} | err: {})".format(ckpt['epoch'], ckpt['err']))
 
+torch.cuda.empty_cache()
+
 processed_data = torch.zeros(batch_size, num_frames, num_joints*3)
 past_frames = torch.zeros(batch_size, num_frames - num_new_frames, num_joints*3)  # Store past frames
 
@@ -251,6 +253,10 @@ def body_tracking_callback(msg):
             past_frames = input_data[:, num_new_frames:]
 
         start_timestamp = time.time()
+
+        # allocated_memory = torch.cuda.memory_allocated(torch.device("cuda"))
+        # allocated_memory = allocated_memory/(1024**3)
+        # print("Allocated GPU Memory:", allocated_memory, "GB")
 
 
 if __name__ == '__main__':

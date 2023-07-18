@@ -1,7 +1,7 @@
 {
-    "exp": "main_viz_w_grdtruth_in50_out10_ks10_dctn20",
+    "exp": "main_test_error_in50_out10_ks10_dctn20",
     "is_eval": false,
-    "ckpt": "./checkpoint/HRI/pretrained/h36m_3d_in50_out10_dctn20/",
+    "ckpt": "./checkpoint/HRI/pretrained/h36m_3d_in50_out10_dctn20/main_test_error_in50_out10_ks10_dctn20",
     "skip_rate": 1,
     "skip_rate_test": 5,
     "in_features": 66,

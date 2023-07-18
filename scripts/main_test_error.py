@@ -6,6 +6,7 @@ from std_msgs.msg import String
 from visualization_msgs.msg import MarkerArray
 import torch
 import time
+import matplotlib.pyplot as plt
 
 import sys
 sys.path.append('/home/bartonlab-user/workspace/src/human_motion_forecasting/scripts')
@@ -28,7 +29,9 @@ num_frames = 60
 num_joints = 32
 num_new_frames = 10  # Number of new frames to collect in each iteration
 
-
+errors = []
+fig, ax = plt.subplots()
+line, = ax.plot([], [])
 
 opt = Options().parse()
 
@@ -52,6 +55,8 @@ err_best = ckpt['err']
 lr_now = ckpt['lr']
 net_pred.load_state_dict(ckpt['state_dict'])
 print(">>> ckpt len loaded (epoch: {} | err: {})".format(ckpt['epoch'], ckpt['err']))
+
+torch.cuda.empty_cache()
 
 processed_data = torch.zeros(batch_size, num_frames, num_joints*3)
 past_frames = torch.zeros(batch_size, num_frames - num_new_frames, num_joints*3)  # Store past frames
@@ -153,16 +158,9 @@ def body_tracking_callback(msg):
 
         ret_test = run_model(net_pred, is_train=3, input_data=input_data, opt=opt)
         print('testing error: {:.3f}'.format(ret_test['#10']))
-        # print(ret_test)
-        # ret_log = np.array([])
-        # for k in ret_test.keys():
-        #     ret_log = np.append(ret_log, [ret_test[k]])
-        # errs[0] = ret_log
-
-        # errs[-1] = np.mean(errs[:-1], axis=0)
-        # acts = np.expand_dims(np.array(acts + ["average"]), axis=1)
-        # value = np.concatenate([acts, errs.astype(np.str)], axis=1)
-        # # log.save_csv_log(opt, head, value, is_create=True, file_name='test_pre_action')
+        errors.append(ret_test['#10'])
+        # Update the plot
+        update_plot()
 
         frame_count = num_frames - num_new_frames
         processed_data.zero_()
@@ -172,11 +170,20 @@ def body_tracking_callback(msg):
         
         start_timestamp = time.time()
 
+        # allocated_memory = torch.cuda.memory_allocated(torch.device("cuda"))
+        # print("Allocated GPU Memory:", allocated_memory)
+
+def update_plot():
+    line.set_data(range(len(errors)), errors)  # Update the data
+    ax.relim()  # Recalculate the plot limits
+    ax.autoscale_view()  # Auto scale the plot
+    fig.canvas.draw()  # Redraw the plot
 
 def listener():
     rospy.init_node('subscriber_node', anonymous=True)
     rospy.Subscriber('body_tracking_data', MarkerArray, body_tracking_callback)
     rospy.spin()
+    plt.show()
 
 if __name__ == '__main__':
     listener()
