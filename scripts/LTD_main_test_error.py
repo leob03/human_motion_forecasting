@@ -98,6 +98,11 @@ def run_model(model, optimizer=None, is_train=0, input_data=None, epo=1, opt=Non
 
     p3d_src = p3d_h36.clone()[:, :, dim_used]
 
+    p3d_src = p3d_src.cpu().numpy()
+    p3d_src = p3d_src.transpose(0, 2, 1)
+    p3d_src = p3d_src.reshape(-1, input_n + output_n)
+    p3d_src = p3d_src.transpose()
+
     #First I need to transform p3d_src in dct coeficients before I give it to the predictor
     dct_m_in, _ = data_utils.get_dct_matrix(in_n + out_n)
     # dct_m_in = torch.from_numpy(dct_m_in).float().cuda()
@@ -105,16 +110,12 @@ def run_model(model, optimizer=None, is_train=0, input_data=None, epo=1, opt=Non
     pad_idx = np.repeat([input_n - 1], output_n)
     i_idx = np.append(np.arange(0, input_n), pad_idx)
 
-    p3d_src = p3d_src.cpu()
-    # print(dct_m_in[0:dct_used, :].shape, p3d_src.shape, i_idx.shape)
-    input_dct_seq = np.matmul(dct_m_in[0:dct_used, :], p3d_src[0][i_idx, :])
-    # input_dct_seq = input_dct_seq.transpose().reshape([-1, len(dim_used), dct_used])
-    input_dct_seq = input_dct_seq.reshape([-1, len(dim_used), dct_used])
+    input_dct_seq = np.matmul(dct_m_in[0:dct_used, :], p3d_src[i_idx, :])
+    input_dct_seq = input_dct_seq.transpose().reshape([-1, len(dim_used), dct_used])
 
-    # input_dct_seq = input_dct_seq.reshape(-1, len(dim_used) * dct_used)
-
-    #make sure dim_used in LTD is the same as in HRI
-    input_dct_seq = input_dct_seq.float().cuda()
+    input_dct_seq = torch.from_numpy(input_dct_seq)
+    input_dct_seq = Variable(input_dct_seq).float()
+    input_dct_seq = input_dct_seq.cuda()
     p3d_out_all = model(input_dct_seq*1000)
     p3d_out_all = p3d_out_all*0.001
 
