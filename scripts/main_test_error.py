@@ -7,8 +7,9 @@ from visualization_msgs.msg import MarkerArray
 import torch
 import time
 import matplotlib.pyplot as plt
-import matplotlib
-matplotlib.use('Agg')
+import threading
+# import matplotlib
+# matplotlib.use('Qt5Agg')
 
 import sys
 sys.path.append('/home/bartonlab-user/workspace/src/human_motion_forecasting/scripts')
@@ -31,7 +32,8 @@ num_frames = 60
 num_joints = 32
 num_new_frames = 10  # Number of new frames to collect in each iteration
 
-errors = []
+# errors = []
+timestamp = 0
 error_cumulate = 0
 x = []
 y = []
@@ -133,7 +135,7 @@ def run_model(net_pred, optimizer=None, is_train=0, input_data=None, epo=1, opt=
 
 def body_tracking_callback(msg):
     
-    global frame_count, start_timestamp, past_frames, error_cumulate
+    global frame_count, start_timestamp, past_frames, error_cumulate, timestamp
 
     marker_array = msg.markers
     coordinates = [[marker.pose.position.x, marker.pose.position.y, marker.pose.position.z]
@@ -164,9 +166,10 @@ def body_tracking_callback(msg):
         ret_test = run_model(net_pred, is_train=3, input_data=input_data, opt=opt)
         print('testing error: {:.3f}'.format(ret_test['#10']))
         error_cumulate += ret_test['#10']
-        errors.append(error_cumulate)
-        # Update the plot
-        update_plot()
+        timestamp += 1
+        x.append(timestamp)
+        y.append(error_cumulate)
+        threading.Thread(target=update_plot).start()
 
         frame_count = num_frames - num_new_frames
         processed_data.zero_()
@@ -184,8 +187,8 @@ def update_plot():
     line.set_data(x, y)
     ax.relim()
     ax.autoscale_view() 
-    fig.draw()
-    plt.pause(0.001)
+    fig.canvas.draw_idle()
+    # plt.pause(0.001)
 
 def listener():
     rospy.init_node('subscriber_node', anonymous=True)
