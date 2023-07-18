@@ -7,6 +7,8 @@ from visualization_msgs.msg import MarkerArray
 import torch
 import time
 import matplotlib.pyplot as plt
+import matplotlib
+matplotlib.use('Agg')
 
 import sys
 sys.path.append('/home/bartonlab-user/workspace/src/human_motion_forecasting/scripts')
@@ -30,8 +32,11 @@ num_joints = 32
 num_new_frames = 10  # Number of new frames to collect in each iteration
 
 errors = []
+error_cumulate = 0
+x = []
+y = []
 fig, ax = plt.subplots()
-line, = ax.plot([], [])
+line, = ax.plot(x, y)
 
 opt = Options().parse()
 
@@ -121,14 +126,14 @@ def run_model(net_pred, optimizer=None, is_train=0, input_data=None, epo=1, opt=
     ###
 
     ret = {}
-    m_p3d_h36 = m_p3d_h36 *256
+    m_p3d_h36 = m_p3d_h36
     for j in range(out_n):
         ret["#{:d}".format(titles[j])] = m_p3d_h36[j]
     return ret
 
 def body_tracking_callback(msg):
     
-    global frame_count, start_timestamp, past_frames
+    global frame_count, start_timestamp, past_frames, error_cumulate
 
     marker_array = msg.markers
     coordinates = [[marker.pose.position.x, marker.pose.position.y, marker.pose.position.z]
@@ -158,7 +163,8 @@ def body_tracking_callback(msg):
 
         ret_test = run_model(net_pred, is_train=3, input_data=input_data, opt=opt)
         print('testing error: {:.3f}'.format(ret_test['#10']))
-        errors.append(ret_test['#10'])
+        error_cumulate += ret_test['#10']
+        errors.append(error_cumulate)
         # Update the plot
         update_plot()
 
@@ -174,16 +180,19 @@ def body_tracking_callback(msg):
         # print("Allocated GPU Memory:", allocated_memory)
 
 def update_plot():
-    line.set_data(range(len(errors)), errors)  # Update the data
-    ax.relim()  # Recalculate the plot limits
-    ax.autoscale_view()  # Auto scale the plot
-    fig.canvas.draw()  # Redraw the plot
+    # line.set_data(range(len(errors)), errors)
+    line.set_data(x, y)
+    ax.relim()
+    ax.autoscale_view() 
+    fig.draw()
+    plt.pause(0.001)
 
 def listener():
     rospy.init_node('subscriber_node', anonymous=True)
     rospy.Subscriber('body_tracking_data', MarkerArray, body_tracking_callback)
+    plt.show(block=False)
     rospy.spin()
-    plt.show()
+    # plt.show()
 
 if __name__ == '__main__':
     listener()
