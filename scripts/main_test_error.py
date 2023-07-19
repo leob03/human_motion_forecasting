@@ -8,8 +8,9 @@ import torch
 import time
 import matplotlib.pyplot as plt
 import threading
+# from matplotlib.animation import FuncAnimation
 # import matplotlib
-# matplotlib.use('Qt5Agg')
+# matplotlib.use('TkAgg')
 
 import sys
 sys.path.append('/home/bartonlab-user/workspace/src/human_motion_forecasting/scripts')
@@ -32,13 +33,10 @@ num_frames = 60
 num_joints = 32
 num_new_frames = 10  # Number of new frames to collect in each iteration
 
-# errors = []
-timestamp = 0
+errors = []
 error_cumulate = 0
-x = []
-y = []
 fig, ax = plt.subplots()
-line, = ax.plot(x, y)
+line, = ax.plot([], [])
 
 opt = Options().parse()
 
@@ -71,6 +69,8 @@ past_frames = torch.zeros(batch_size, num_frames - num_new_frames, num_joints*3)
 
 frame_count = 0
 start_timestamp = time.time()
+inference_time_mean = 0
+actual_callbacks = 0
 
 def run_model(net_pred, optimizer=None, is_train=0, input_data=None, epo=1, opt=None):
     net_pred.eval()
@@ -135,7 +135,7 @@ def run_model(net_pred, optimizer=None, is_train=0, input_data=None, epo=1, opt=
 
 def body_tracking_callback(msg):
     
-    global frame_count, start_timestamp, past_frames, error_cumulate, timestamp
+    global frame_count, start_timestamp, past_frames, error_cumulate, inference_time_mean, actual_callbacks
 
     marker_array = msg.markers
     coordinates = [[marker.pose.position.x, marker.pose.position.y, marker.pose.position.z]
@@ -159,17 +159,20 @@ def body_tracking_callback(msg):
         input_data = processed_data.view(batch_size, num_frames, num_joints*3)
 
         elapsed_time = time.time() - start_timestamp
-        print("Elapsed time:", elapsed_time)
+        print("Elapsed time between two callbacks:", elapsed_time)
 
-        # errs = np.zeros([len(acts) + 1, opt.output_n])
-
+        start_timestamp_inference = time.time()
         ret_test = run_model(net_pred, is_train=3, input_data=input_data, opt=opt)
+        inference_time = time.time() - start_timestamp_inference
+        print("Inference time:", inference_time)
+        actual_callbacks += 1
+        if actual_callbacks>1:
+            inference_time_mean += inference_time
         print('testing error: {:.3f}'.format(ret_test['#10']))
+        
         error_cumulate += ret_test['#10']
-        timestamp += 1
-        x.append(timestamp)
-        y.append(error_cumulate)
-        threading.Thread(target=update_plot).start()
+        errors.append(error_cumulate)
+        update_plot()
 
         frame_count = num_frames - num_new_frames
         processed_data.zero_()
@@ -183,19 +186,26 @@ def body_tracking_callback(msg):
         # print("Allocated GPU Memory:", allocated_memory)
 
 def update_plot():
-    # line.set_data(range(len(errors)), errors)
-    line.set_data(x, y)
+    line.set_data(range(len(errors)), errors)
     ax.relim()
     ax.autoscale_view() 
     fig.canvas.draw_idle()
-    # plt.pause(0.001)
 
-def listener():
+
+def main():
+    global inference_time_mean, actual_callbacks
     rospy.init_node('subscriber_node', anonymous=True)
     rospy.Subscriber('body_tracking_data', MarkerArray, body_tracking_callback)
-    plt.show(block=False)
+    # plt.ion()
+    # plot_thread = threading.Thread(target=update_plot)
+    # plot_thread.start()
     rospy.spin()
-    # plt.show()
+    # plot_thread.join()  # Wait for the plot thread to finish
+    # plt.ioff()
+    inference_time_mean = inference_time_mean/(actual_callbacks-1)
+    print("mean Inference time:", inference_time_mean)
+    plt.show()
+
 
 if __name__ == '__main__':
-    listener()
+    main()

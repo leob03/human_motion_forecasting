@@ -297,8 +297,8 @@ def body_tracking_callback(msg):
 
 
 if __name__ == '__main__':
-    rospy.init_node('motion_forecasting_node', anonymous=True)
-    marker_publisher1 = rospy.Publisher("/visualization_marker1", Marker, queue_size=1)
-    marker_publisher = rospy.Publisher("/visualization_marker", Marker, queue_size=1)
+    rospy.init_node('LTD_motion_forecasting_node', anonymous=True)
+    marker_publisher1 = rospy.Publisher("/LTD_visualization_marker_gt", Marker, queue_size=1)
+    marker_publisher = rospy.Publisher("/LTD_visualization_marker", Marker, queue_size=1)
     rospy.Subscriber('body_tracking_data', MarkerArray, body_tracking_callback)
     rospy.spin()

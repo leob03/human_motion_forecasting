@@ -149,7 +149,7 @@ def run_model(model, optimizer=None, is_train=0, input_data=None, epo=1, opt=Non
     ###
 
     ret = {}
-    m_p3d_h36 = m_p3d_h36 *256
+    m_p3d_h36 = m_p3d_h36
     for j in range(out_n):
         ret["#{:d}".format(titles[j])] = m_p3d_h36[j]
     return ret
@@ -207,7 +207,7 @@ def body_tracking_callback(msg):
 
 
 def listener():
-    rospy.init_node('subscriber_node', anonymous=True)
+    rospy.init_node('LTD_subscriber_node', anonymous=True)
     rospy.Subscriber('body_tracking_data', MarkerArray, body_tracking_callback)
     rospy.spin()
 
