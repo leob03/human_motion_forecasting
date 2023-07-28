@@ -246,8 +246,8 @@ def body_tracking_callback(msg):
         # marker.scale.y = 0.05
         # marker.scale.z = 0.05
         marker.color.a = 1.0
-        marker.color.r = 0.0
-        marker.color.g = 1.0
+        marker.color.r = 1.0
+        marker.color.g = 0.0
         marker.color.b = 0.0
 
         # for coordinate in prediction_coordinates:

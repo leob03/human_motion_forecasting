@@ -216,9 +216,9 @@ def body_tracking_callback(msg):
         marker.scale.y = 0.01
         marker.scale.z = 0.01
         marker.color.a = 1.0
-        marker.color.r = 0.0
-        marker.color.g = 1.0
-        marker.color.b = 0.0
+        marker.color.r = 1.0
+        marker.color.g = 0.0
+        marker.color.b = 1.0
 
         for start_idx, end_idx in connections:
             start_coordinate = prediction_coordinates[start_idx]
