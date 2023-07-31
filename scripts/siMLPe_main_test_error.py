@@ -222,7 +222,7 @@ def update_plot():
 
 def main():
     global inference_time_mean, actual_callbacks
-    rospy.init_node('subscriber_node', anonymous=True)
+    rospy.init_node('siMLPe_subscriber_node', anonymous=True)
     rospy.Subscriber('body_tracking_data', MarkerArray, body_tracking_callback)
     # plt.ion()
     # plot_thread = threading.Thread(target=update_plot)
