@@ -31,7 +31,7 @@ from utils import log
 batch_size = 1
 num_frames = 60
 num_joints = 32
-num_new_frames = 10  # Number of new frames to collect in each iteration
+num_new_frames = 1  # Number of new frames to collect in each iteration
 
 errors = []
 error_cumulate = 0

@@ -30,7 +30,7 @@ import torch.optim as optim
 batch_size = 1
 num_frames = 75
 num_joints = 32
-num_new_frames = 10  # Number of new frames to collect in each iteration
+num_new_frames = 5  # Number of new frames to collect in each iteration
 
 errors = []
 error_cumulate = 0
@@ -39,7 +39,7 @@ line, = ax.plot([], [])
 
 parser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter)
 
-parser.add_argument('--model-pth', type=str, default=None, help='=encoder path')
+parser.add_argument('--model-pth', type=str, default='/home/bartonlab-user/workspace/src/human_motion_forecasting/scripts/checkpoint/siMLPe/model-iter-40000.pth', help='=encoder path')
 args = parser.parse_args()
 
 model = Model(config)
@@ -171,7 +171,7 @@ def body_tracking_callback(msg):
         #publish the groundtruth for visualization 
         p3d_h36 = input_data.reshape([-1, 50 + 25, 32, 3])
         grnd_truth = p3d_h36[:, -25:]
-        grnd = grnd_truth[:,-1]
+        grnd = grnd_truth[:,10]
         grnd_coordinates = grnd.view(num_joints, 3)
 
         marker1 = Marker()
@@ -226,7 +226,7 @@ def body_tracking_callback(msg):
         marker_publisher1.publish(marker1)
 
         #publish the prediction for visualization 
-        prediction = motion_pred[:,-1]
+        prediction = motion_pred[:,10]
         prediction_coordinates = prediction.view(num_joints, 3)
 
         marker = Marker()
@@ -240,7 +240,7 @@ def body_tracking_callback(msg):
         marker.color.a = 1.0
         marker.color.r = 0.0
         marker.color.g = 1.0
-        marker.color.b = 0.0
+        marker.color.b = 1.0
 
         for start_idx, end_idx in connections:
             start_coordinate = prediction_coordinates[start_idx]
@@ -276,7 +276,7 @@ def body_tracking_callback(msg):
         processed_data.zero_()
 
         if num_new_frames < num_frames:
-            past_frames = input_data[:, num_new_frames:]
+            past_frames = input_data.reshape(batch_size,-1, num_joints*3)[:, num_new_frames:]
 
         start_timestamp = time.time()
 

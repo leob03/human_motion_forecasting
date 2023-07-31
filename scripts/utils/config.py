@@ -97,7 +97,7 @@ C.cos_lr_min=5e-8
 C.cos_lr_total_iters=40000
 
 C.weight_decay = 1e-4
-C.model_pth = '/home/lbringer/human_motion_forecasting/scripts/checkpoint/siMLPe/model-iter-40000.pth'
+C.model_pth = '/home/bartonlab-user/workspace/src/human_motion_forecasting/scripts/checkpoint/siMLPe/model-iter-40000.pth'
 
 """Eval Config"""
 C.shift_step = 1

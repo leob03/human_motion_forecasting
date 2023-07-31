@@ -37,7 +37,7 @@ line, = ax.plot([], [])
 
 parser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter)
 
-parser.add_argument('--model-pth', type=str, default=None, help='=encoder path')
+parser.add_argument('--model-pth', type=str, default='/home/bartonlab-user/workspace/src/human_motion_forecasting/scripts/checkpoint/siMLPe/model-iter-40000.pth', help='=encoder path')
 args = parser.parse_args()
 
 model = Model(config)
@@ -159,7 +159,8 @@ def run_model(config, model, input_data):
     ret = {}
     for j in range(config.motion.h36m_target_length):
         ret["#{:d}".format(titles[j])] = [m_p3d_h36[j], m_p3d_h36[j]]
-    return [round(ret[key][0], 1) for key in results_keys]
+    # return [round(ret[key][0], 1) for key in results_keys]
+    return ret
 
 def body_tracking_callback(msg):
     
@@ -196,11 +197,11 @@ def body_tracking_callback(msg):
         actual_callbacks += 1
         if actual_callbacks>1:
             inference_time_mean += inference_time
-        print('testing error: {:.3f}'.format(ret_test['#10']))
+        print('testing error:', [round(ret_test[key][0],1) for key in results_keys])
         
-        error_cumulate += ret_test['#10']
-        errors.append(error_cumulate)
-        update_plot()
+        # error_cumulate += ret_test['#10']
+        # errors.append(error_cumulate)
+        # update_plot()
 
         frame_count = num_frames - num_new_frames
         processed_data.zero_()
@@ -232,7 +233,7 @@ def main():
     # plt.ioff()
     inference_time_mean = inference_time_mean/(actual_callbacks-1)
     print("mean Inference time:", inference_time_mean)
-    plt.show()
+    # plt.show()
 
 
 if __name__ == '__main__':
