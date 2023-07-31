@@ -2,7 +2,7 @@ import copy
 
 import torch
 from torch import nn
-from mlp import build_mlps
+from model.mlp import build_mlps
 from einops.layers.torch import Rearrange
 
 class siMLPe(nn.Module):
