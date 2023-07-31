@@ -26,7 +26,7 @@ import h5py
 import torch.optim as optim
 
 batch_size = 1
-num_frames = 60
+num_frames = 75
 num_joints = 32
 num_new_frames = 10  # Number of new frames to collect in each iteration
 
@@ -48,11 +48,6 @@ model.eval()
 model.cuda()
 
 config.motion.h36m_target_length = config.motion.h36m_target_length_eval
-
-m_p3d_h36 = np.zeros([config.motion.h36m_target_length])
-titles = np.array(range(config.motion.h36m_target_length)) + 1
-joint_used_xyz = np.array([2,3,4,5,7,8,9,10,12,13,14,15,17,18,19,21,22,25,26,27,29,30]).astype(np.int64)
-num_samples = 0
 
 torch.cuda.empty_cache()
 
@@ -82,12 +77,16 @@ dct_m,idct_m = get_dct_matrix(config.motion.h36m_input_length_dct)
 dct_m = torch.tensor(dct_m).float().cuda().unsqueeze(0)
 idct_m = torch.tensor(idct_m).float().cuda().unsqueeze(0)
 
-def run_model(model, num_samples, joint_used_xyz, m_p3d_h36, input_data=None):
+def run_model(config, model, input_data):
+    m_p3d_h36 = np.zeros([config.motion.h36m_target_length])
+    titles = np.array(range(config.motion.h36m_target_length)) + 1
+    joint_used_xyz = np.array([2,3,4,5,7,8,9,10,12,13,14,15,17,18,19,21,22,25,26,27,29,30]).astype(np.int64)
+    num_samples = 0
     joint_to_ignore = np.array([16, 20, 23, 24, 28, 31]).astype(np.int64)
     joint_equal = np.array([13, 19, 22, 13, 27, 30]).astype(np.int64)
 
     input_data = input_data.reshape(batch_size, num_frames, num_joints, 3)
-    motion_input = input_data.cuda()
+    motion_input = input_data[:,:50].cuda()
     b,n,c,_ = motion_input.shape
     num_samples += b
 
@@ -118,7 +117,7 @@ def run_model(model, num_samples, joint_used_xyz, m_p3d_h36, input_data=None):
     motion_pred = torch.cat(outputs, axis=1)[:,:25]
 
     #define motion_target
-    motion_target = motion_target.detach()
+    motion_target = input_data[:,-25:].detach()
     b,n,c,_ = motion_target.shape
 
     motion_gt = motion_target.clone()
@@ -143,11 +142,11 @@ def run_model(model, num_samples, joint_used_xyz, m_p3d_h36, input_data=None):
     # mpjpe_p3d_h36 = torch.sum(torch.mean(torch.norm(p3d_h36[:, in_n:] - p3d_out, dim=3), dim=2), dim=0)
 
     #method in STS_GCN
-    batch_pred=p3d_out.view(-1,out_n,32,3).contiguous().view(-1,3)
-    batch_gt= p3d_h36[:, in_n:].view(-1, out_n,32,3).contiguous().view(-1,3)
-    mpjpe_p3d_h36 =torch.mean(torch.norm(batch_gt-batch_pred,2,1))
+    # batch_pred=p3d_out.view(-1,out_n,32,3).contiguous().view(-1,3)
+    # batch_gt= p3d_h36[:, in_n:].view(-1, out_n,32,3).contiguous().view(-1,3)
+    # mpjpe_p3d_h36 =torch.mean(torch.norm(batch_gt-batch_pred,2,1))
 
-    m_p3d_h36 += mpjpe_p3d_h36.cpu().data.numpy()
+    # m_p3d_h36 += mpjpe_p3d_h36.cpu().data.numpy()
 
     ###
 
@@ -191,7 +190,7 @@ def body_tracking_callback(msg):
         print("Elapsed time between two callbacks:", elapsed_time)
 
         start_timestamp_inference = time.time()
-        ret_test = run_model(net_pred, is_train=3, input_data=input_data, opt=opt)
+        ret_test = run_model(config, model, input_data)
         inference_time = time.time() - start_timestamp_inference
         print("Inference time:", inference_time)
         actual_callbacks += 1
