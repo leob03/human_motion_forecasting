@@ -151,76 +151,76 @@ def create_model(actions, sampling=False):
     model.target_seq_len = 100
   return model
 
-# def define_actions( action ):
-#   """
-#   Define the list of actions we are using.
+def define_actions( action ):
+  """
+  Define the list of actions we are using.
 
-#   Args
-#     action: String with the passed action. Could be "all"
-#   Returns
-#     actions: List of strings of actions
-#   Raises
-#     ValueError if the action is not included in H3.6M
-#   """
+  Args
+    action: String with the passed action. Could be "all"
+  Returns
+    actions: List of strings of actions
+  Raises
+    ValueError if the action is not included in H3.6M
+  """
 
-#   actions = ["walking", "eating", "smoking", "discussion",  "directions",
-#               "greeting", "phoning", "posing", "purchases", "sitting",
-#               "sittingdown", "takingphoto", "waiting", "walkingdog",
-#               "walkingtogether"]
+  actions = ["walking", "eating", "smoking", "discussion",  "directions",
+              "greeting", "phoning", "posing", "purchases", "sitting",
+              "sittingdown", "takingphoto", "waiting", "walkingdog",
+              "walkingtogether"]
 
-#   if action in actions:
-#     return [action]
+  if action in actions:
+    return [action]
 
-#   if action == "all":
-#     return actions
+  if action == "all":
+    return actions
 
-#   if action == "all_srnn":
-#     return ["walking", "eating", "smoking", "discussion"]
+  if action == "all_srnn":
+    return ["walking", "eating", "smoking", "discussion"]
 
-#   raise( ValueError, "Unrecognized action: %d" % action )
+  raise( ValueError, "Unrecognized action: %d" % action )
 
 
-# def get_srnn_gts( actions, model, test_set, data_mean, data_std, dim_to_ignore, one_hot, to_euler=True ):
-#   """
-#   Get the ground truths for srnn's sequences, and convert to Euler angles.
-#   (the error is always computed in Euler angles).
+def get_srnn_gts( actions, model, test_set, data_mean, data_std, dim_to_ignore, one_hot, to_euler=True ):
+  """
+  Get the ground truths for srnn's sequences, and convert to Euler angles.
+  (the error is always computed in Euler angles).
 
-#   Args
-#     actions: a list of actions to get ground truths for.
-#     model: training model we are using (we only use the "get_batch" method).
-#     test_set: dictionary with normalized training data.
-#     data_mean: d-long vector with the mean of the training data.
-#     data_std: d-long vector with the standard deviation of the training data.
-#     dim_to_ignore: dimensions that we are not using to train/predict.
-#     one_hot: whether the data comes with one-hot encoding indicating action.
-#     to_euler: whether to convert the angles to Euler format or keep thm in exponential map
+  Args
+    actions: a list of actions to get ground truths for.
+    model: training model we are using (we only use the "get_batch" method).
+    test_set: dictionary with normalized training data.
+    data_mean: d-long vector with the mean of the training data.
+    data_std: d-long vector with the standard deviation of the training data.
+    dim_to_ignore: dimensions that we are not using to train/predict.
+    one_hot: whether the data comes with one-hot encoding indicating action.
+    to_euler: whether to convert the angles to Euler format or keep thm in exponential map
 
-#   Returns
-#     srnn_gts_euler: a dictionary where the keys are actions, and the values
-#       are the ground_truth, denormalized expected outputs of srnns's seeds.
-#   """
-#   srnn_gts_euler = {}
+  Returns
+    srnn_gts_euler: a dictionary where the keys are actions, and the values
+      are the ground_truth, denormalized expected outputs of srnns's seeds.
+  """
+  srnn_gts_euler = {}
 
-#   for action in actions:
+  for action in actions:
 
-#     srnn_gt_euler = []
-#     _, _, srnn_expmap = model.get_batch_srnn( test_set, action )
+    srnn_gt_euler = []
+    _, _, srnn_expmap = model.get_batch_srnn( test_set, action )
 
-#     # expmap -> rotmat -> euler
-#     for i in np.arange( srnn_expmap.shape[0] ):
-#       denormed = data_utils_srnn.unNormalizeData(srnn_expmap[i,:,:], data_mean, data_std, dim_to_ignore, actions, one_hot )
+    # expmap -> rotmat -> euler
+    for i in np.arange( srnn_expmap.shape[0] ):
+      denormed = data_utils_srnn.unNormalizeData(srnn_expmap[i,:,:], data_mean, data_std, dim_to_ignore, actions, one_hot )
 
-#       if to_euler:
-#         for j in np.arange( denormed.shape[0] ):
-#           for k in np.arange(3,97,3):
-#             denormed[j,k:k+3] = data_utils_srnn.rotmat2euler( data_utils_srnn.expmap2rotmat( denormed[j,k:k+3] ))
+      if to_euler:
+        for j in np.arange( denormed.shape[0] ):
+          for k in np.arange(3,97,3):
+            denormed[j,k:k+3] = data_utils_srnn.rotmat2euler( data_utils_srnn.expmap2rotmat( denormed[j,k:k+3] ))
 
-#       srnn_gt_euler.append( denormed );
+      srnn_gt_euler.append( denormed );
 
-#     # Put back in the dictionary
-#     srnn_gts_euler[action] = srnn_gt_euler
+    # Put back in the dictionary
+    srnn_gts_euler[action] = srnn_gt_euler
 
-#   return srnn_gts_euler
+  return srnn_gts_euler
 
 
 def sample():
