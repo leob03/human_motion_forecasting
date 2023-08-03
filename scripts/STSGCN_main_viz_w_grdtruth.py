@@ -29,7 +29,7 @@ from utils.parser import args
 batch_size = 1
 num_frames = 20
 num_joints = 32
-num_new_frames = 10  # Number of new frames to collect in each iteration (for sliding windows)
+num_new_frames = 5  # Number of new frames to collect in each iteration (for sliding windows)
 
 opt = Options().parse()
 
