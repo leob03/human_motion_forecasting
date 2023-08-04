@@ -44,7 +44,7 @@ add_path(osp.join(C.root_dir, 'lib'))
 # TODO
 
 """Dataset Config"""
-C.h36m_anno_dir = osp.join(C.root_dir, 'data/h36m/')
+C.h36m_anno_dir = osp.join(C.root_dir, 'scripts/data/h36m')
 C.motion = edict()
 
 C.motion.h36m_input_length = 50

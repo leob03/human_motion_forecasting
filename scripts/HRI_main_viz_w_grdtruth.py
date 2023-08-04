@@ -147,6 +147,7 @@ def body_tracking_callback(msg):
         grnd_truth = p3d_h36[:, in_n:]
         grnd = grnd_truth[:,-1]
         grnd_coordinates = grnd.view(num_joints, 3)
+        print(grnd_coordinates.shape)
 
         marker1 = Marker()
         marker1.header.frame_id = "depth_camera_link"
