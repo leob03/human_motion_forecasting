@@ -50,10 +50,10 @@ def regress_pred(model, pbar, num_samples, joint_used_xyz, m_p3d_h36, prediction
     connections = [(0, 2), (2, 3), (3, 5), (5, 6),(6, 8),(3,12),(12, 13), (13, 15), (18,22),(18, 19), (19,21), (22,23),(23, 25), (26, 3), (26,27)]
 
     for (motion_input, motion_target) in pbar:
+        # print(motion_input.shape, motion_target.shape)
         motion_input = motion_input.cuda()
         b,n,c,_ = motion_input.shape
         num_samples += b
-        print(n)
 
         motion_input = motion_input.reshape(b, n, 32, 3)
         motion_input = motion_input[:, :, joint_used_xyz].reshape(b, n, -1)
@@ -100,7 +100,7 @@ def regress_pred(model, pbar, num_samples, joint_used_xyz, m_p3d_h36, prediction
 
         mpjpe_p3d_h36 = torch.sum(torch.mean(torch.norm(motion_pred*1000 - motion_gt*1000, dim=3), dim=2), dim=0)
         m_p3d_h36 += mpjpe_p3d_h36.cpu().numpy()
-        time.sleep(0.100)
+        time.sleep(0.600)
 
     m_p3d_h36 = m_p3d_h36 / num_samples
     return m_p3d_h36
@@ -124,16 +124,32 @@ def publish_marker_array(publisher, joint_coordinates, connections, color_r, col
     marker_array = MarkerArray()
     marker = Marker()
     marker.header.frame_id = "depth_camera_link"
-    marker.type = Marker.SPHERE_LIST
-    # marker.type = Marker.LINE_LIST
+    # marker.type = Marker.SPHERE_LIST
+    marker.type = Marker.LINE_LIST
     marker.action = Marker.ADD
-    marker.scale.x = 0.05
-    marker.scale.y = 0.05
-    marker.scale.z = 0.05
+    # marker.scale.x = 0.05
+    # marker.scale.y = 0.05
+    # marker.scale.z = 0.05
+    marker.scale.x = 0.01
+    marker.scale.y = 0.01
+    marker.scale.z = 0.01
     marker.color.a = 1.0
     marker.color.r = color_r
     marker.color.g = color_g
     marker.color.b = color_b
+
+    marker_array1 = MarkerArray()
+    marker1 = Marker()
+    marker1.header.frame_id = "depth_camera_link"
+    marker1.type = Marker.SPHERE_LIST
+    marker1.action = Marker.ADD
+    marker1.scale.x = 0.05
+    marker1.scale.y = 0.05
+    marker1.scale.z = 0.05
+    marker1.color.a = 1.0
+    marker1.color.r = color_r
+    marker1.color.g = color_g
+    marker1.color.b = color_b
 
     # for simple points at each body joint
     for coordinate in joint_coordinates:
@@ -141,28 +157,30 @@ def publish_marker_array(publisher, joint_coordinates, connections, color_r, col
         point.x = coordinate[0].item()
         point.y = coordinate[1].item()
         point.z = coordinate[2].item()
-        marker.points.append(point)
+        marker1.points.append(point)
 
-    # for start_idx, end_idx in connections:
-    #     start_coordinate = joint_coordinates[start_idx]
-    #     end_coordinate = joint_coordinates[end_idx]
+    for start_idx, end_idx in connections:
+        start_coordinate = joint_coordinates[start_idx]
+        end_coordinate = joint_coordinates[end_idx]
 
-    #     # Add start point
-    #     start_point = Point()
-    #     start_point.x = start_coordinate[0]
-    #     start_point.y = start_coordinate[1]
-    #     start_point.z = start_coordinate[2]
-    #     marker.points.append(start_point)
+        # Add start point
+        start_point = Point()
+        start_point.x = start_coordinate[0]
+        start_point.y = start_coordinate[1]
+        start_point.z = start_coordinate[2]
+        marker.points.append(start_point)
 
-    #     # Add end point
-    #     end_point = Point()
-    #     end_point.x = end_coordinate[0]
-    #     end_point.y = end_coordinate[1]
-    #     end_point.z = end_coordinate[2]
-    #     marker.points.append(end_point)
+        # Add end point
+        end_point = Point()
+        end_point.x = end_coordinate[0]
+        end_point.y = end_coordinate[1]
+        end_point.z = end_coordinate[2]
+        marker.points.append(end_point)
 
     marker_array.markers.append(marker)
-    publisher.publish(marker_array)
+    marker_array1.markers.append(marker1)
+    # publisher.publish(marker_array)
+    publisher.publish(marker_array1)
 
 
 if __name__ == '__main__':
