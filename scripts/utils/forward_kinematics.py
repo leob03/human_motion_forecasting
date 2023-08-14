@@ -1,7 +1,7 @@
 import numpy as np
 import torch
 from torch.autograd.variable import Variable
-from utils import data_utils
+import data_utils
 
 
 def fkl(angles, parent, offset, rotInd, expmapInd):

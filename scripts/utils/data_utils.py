@@ -5,7 +5,7 @@ from six.moves import xrange  # pylint: disable=redefined-builtin
 import torch
 # from torch.autograd.variable import Variable
 import os
-from utils import forward_kinematics
+import forward_kinematics
 
 
 def rotmat2euler(R):
