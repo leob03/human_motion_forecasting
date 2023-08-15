@@ -13,6 +13,7 @@ def issue30():
 
     n, d = the_sequence.shape
     even_list = range(0, n, sample_rate)
+    l=0
     num_frames = len(even_list)
     the_sequence = np.array(the_sequence[even_list, :])
     # remove global rotation and translation
