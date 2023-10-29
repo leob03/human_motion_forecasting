@@ -9,7 +9,7 @@ A Neural Network based method for Human Motion Forecasting in the context of Dyn
 &nbsp;
 
 <p align="center">
-  <img src=./img/combined.png width="900" height="300">
+  <img src=./img/combined.png width="870" height="280">
 </p>
 
 # Contents
