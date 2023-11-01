@@ -26,6 +26,8 @@ A Neural Network based method for Human Motion Forecasting in the context of Dyn
 
 [***Getting started***](https://github.com/leob03/human_motion_forecasting#getting-started)
 
+[***References***](https://github.com/leob03/human_motion_forecasting#references)
+
 [***Notes***](https://github.com/leob03/human_motion_forecasting#notes)
 
 # Objective
@@ -98,6 +100,8 @@ Then, we evaluated it on the ShapeNetPart dataset which is annotated for 3D obje
 1. **Get the data.** Download alignment **ShapeNet** [here](https://shapenet.cs.stanford.edu/media/shapenetcore_partanno_segmentation_benchmark_v0_normal.zip) and save in `data/shapenetcore_partanno_segmentation_benchmark_v0_normal`.
 2. **To train the model for Part Segmentation:** Run the training `$ python train/train_partsegmentation.py`. You'll see that the learning code writes checkpoints into `log/partseg/Leo/train_classification.log` and periodically print its status. 
 3. **Evaluate the models checkpoints.** To evaluate a checkpoint from `models/`, run the scripts `$ python eval_partsegmentation.py`. You'll see that the learning code writes checkpoints into `log/partseg/Leo/eval_partsegmentation.log` and periodically print its status. 
+
+# References
 
 # Notes
 Some code and training settings are borrowed from both https://github.com/yanx27/Pointnet_Pointnet2_pytorch and from the paper [PCT: Point Cloud Transformer (Meng-Hao Guo et al.)](https://arxiv.org/abs/2012.09688) which original implementation is accessible here: https://github.com/MenghaoGuo/PCT.
