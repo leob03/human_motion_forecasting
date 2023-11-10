@@ -64,9 +64,9 @@ I only tested this code with Ubuntu 20.04, but I tried to make it as generic as 
 2. To run a predefined simple demo of the code and test the main results run the command `python demo.py`
 
 <p align="center">
-  <img src=./img/archAE.png width="700" height="300">
+  <img src=./img/LSTM.png width="300" height="380">
   <br>
-  The Neural Network architecture of our Auto-Encoder
+  The Neural Network architecture of our Method
 </p>
 
 ## Testing the Encoder on 3D Shape Classification task:
