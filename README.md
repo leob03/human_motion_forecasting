@@ -4,7 +4,7 @@
 
 # Human Motion Forecasting for Dynamic Human Robot Collaboration
 
-A Neural Network based method for Human Motion Forecasting in the context of Dynamic Human-Robot Collaboration. The network architecture relies on Graph Convolutional Network and Self-Attention Layers. This code is the implementation of the main research project that I have conducted at the [Barton Research Group](https://brg.engin.umich.edu/research/robotic-smart-manufacturing). Some of the code was adapted from HisRepsItself by Wei Mao.
+This repository contains a Neural Network model for Human Motion Forecasting in the context of Dynamic Human-Robot Collaboration as well as visualisation tools to compare state of the art models on real-time skeleton data captured with an Azure Kinect leveraging ROS 3D visualizer software RViz. The network architecture relies on Graph Convolutional Network, Self-Attention Layers and LSTMs. This code is the implementation of a research project conducted at the [Barton Research Group](https://brg.engin.umich.edu/research/human-digital-twins/).
 
 &nbsp;
 
@@ -28,7 +28,7 @@ A Neural Network based method for Human Motion Forecasting in the context of Dyn
 
 [***References***](https://github.com/leob03/human_motion_forecasting#references)
 
-[***Notes***](https://github.com/leob03/human_motion_forecasting#notes)
+[***Acknowledgments***](https://github.com/leob03/human_motion_forecasting#acknowledgments)
 
 # Objective
 
@@ -103,6 +103,6 @@ Then, we evaluated it on the ShapeNetPart dataset which is annotated for 3D obje
 
 # References
 
-# Notes
+# Acknowledgments
 Some code and training settings are borrowed from both https://github.com/yanx27/Pointnet_Pointnet2_pytorch and from the paper [PCT: Point Cloud Transformer (Meng-Hao Guo et al.)](https://arxiv.org/abs/2012.09688) which original implementation is accessible here: https://github.com/MenghaoGuo/PCT.
 
