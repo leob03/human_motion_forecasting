@@ -12,7 +12,7 @@ This repository contains a Neural Network model for Human Motion Forecasting in 
   <img src=./img/combined.png width="870" height="280">
 </p>
 
-# Contents
+# Content
 
 [***Objective***](https://github.com/leob03/human_motion_forecasting#objective)
 
