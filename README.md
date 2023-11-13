@@ -22,6 +22,8 @@ This repository contains a Neural Network model for Human Motion Forecasting in 
 
 [***Concepts***](https://github.com/leob03/human_motion_forecasting#concepts)
 
+[***Architecture***](https://github.com/leob03/human_motion_forecasting#architecture)
+
 [***Dependencies***](https://github.com/leob03/human_motion_forecasting#dependencies)
 
 [***Getting started***](https://github.com/leob03/human_motion_forecasting#getting-started)
@@ -32,7 +34,7 @@ This repository contains a Neural Network model for Human Motion Forecasting in 
 
 # Objective
 
-**To encode the information of the surfaces from a point cloud representation of a CAD file into a more meaningful latent space useful to determine grasping point candidates based on physical parameters.**
+**With a simple RGB-D Camera predict the future motion of a human in a Smart Manufacturing Workspace of to ensure safety in the human-robot interactions.**
 
 # Recap
 
@@ -51,6 +53,8 @@ Most of the concepts are described quite in depth in the paper but here is a qui
 * **Shape Classification**. Shape classification involves categorizing or classifying 3D shapes into predefined categories or classes based on their geometric properties and features. The goal is to assign each shape to the most appropriate category, enabling shape recognition and organization in various applications, such as computer-aided design, object recognition, and medical imaging.
 
 * **Part Segmentation**. Part segmentation, on the other hand, focuses on dividing a 3D shape into its constituent parts or components. The objective is to segment the shape into meaningful subregions or parts, each corresponding to a specific component or structure. Part segmentation is valuable in tasks like object analysis, shape reconstruction, and understanding the functional components of complex shapes, such as objects or human anatomy.
+
+# Concepts
 
 # Dependencies
 **Python 3.10**, modern version of **PyTorch**, **numpy** and **scipy** module. Most of these are okay to install with **pip**. To install the rest of the dependencies all at once, run the command `./install.sh`
