@@ -34,7 +34,7 @@ This repository contains a Neural Network model for Human Motion Forecasting in 
 
 # Objective
 
-**With a simple RGB-D Camera predict the future motion of a human in a Smart Manufacturing Workspace of to ensure safety in the human-robot interactions.**
+**With a simple RGB-D Camera predict the future motion of a human in a Smart Manufacturing workspace of to ensure safety in human-robot interactions.**
 
 # Recap
 
