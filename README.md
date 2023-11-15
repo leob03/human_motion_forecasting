@@ -16,8 +16,6 @@ This repository contains a Neural Network model for Human Motion Forecasting in 
 
 [***Objective***](https://github.com/leob03/human_motion_forecasting#objective)
 
-[***Recap***](https://github.com/leob03/human_motion_forecasting#recap)
-
 [***Comparisons***](https://github.com/leob03/human_motion_forecasting#comparisons)
 
 [***Concepts***](https://github.com/leob03/human_motion_forecasting#concepts)
@@ -36,9 +34,13 @@ This repository contains a Neural Network model for Human Motion Forecasting in 
 
 **With a simple RGB-D Camera predict the future motion of a human in a Smart Manufacturing workspace of to ensure safety in human-robot interactions.**
 
-# Recap
-
 # Comparisons
+
+During this project we studied and implemented multiple methods for Human Motion Forecasting, compared their performance (accuracy, speed and memory consumption) on Human 3.6M (common dataset) but most of all on our own Human-Robot Collaboration workspace set up. Indeed, we wanted to have an idea of how these models performed on real-time data. We compared the results of these implenetations on real-time skeleton data captured with the Azure Kinect SDK and worked on a visualization tool to compare those results. Finally, based on this previous study chose one method as a benchmark (History Repeats Itslef by Wei Mao) and tried multiple different types of architecture improvements to obtain even better results.
+
+These are some visuals of the results obtained:
+
+
 
 # Concepts
 
