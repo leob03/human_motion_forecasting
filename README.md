@@ -70,7 +70,7 @@ I only tested this code with Ubuntu 20.04, but I tried to make it as generic as 
 2. To run a predefined simple demo of the code and test the main results run the command `python demo.py`
 
 <p align="center">
-  <img src=./img/LSTM.png width="300" height="380">
+  <img src=./img/arch.png width="600" height="400">
   <br>
   The Neural Network architecture of our Method
 </p>
