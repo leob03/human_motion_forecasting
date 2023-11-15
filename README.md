@@ -40,6 +40,32 @@ During this project we studied and implemented multiple methods for Human Motion
 
 These are some visuals of the results obtained:
 
+&nbsp;
+
+<p align="center">
+<!--   Some visual results of : -->
+  <br>
+  <img src="./gif/STS-GCN.gif" alt="Image Description" width="400" height="300">
+</p>
+
+&nbsp;
+
+<p align="center">
+<!--   Some visual results of : -->
+  <br>
+  <img src="./gif/siMLPe.gif" alt="Image Description" width="400" height="300">
+</p>
+
+&nbsp;
+
+<p align="center">
+<!--   Some visual results of : -->
+  <br>
+  <img src="./gif/HRI.gif" alt="Image Description" width="400" height="300">
+</p>
+
+&nbsp;
+
 
 
 # Concepts
@@ -58,6 +84,12 @@ Most of the concepts are described quite in depth in the paper but here is a qui
 
 # Architecture
 
+<p align="center">
+  <img src=./img/arch.png width="600" height="400">
+  <br>
+  The Neural Network architecture of our Method
+</p>
+
 # Dependencies
 **Python 3.10**, modern version of **PyTorch**, **numpy** and **scipy** module. Most of these are okay to install with **pip**. To install the rest of the dependencies all at once, run the command `./install.sh`
 
@@ -68,12 +100,6 @@ I only tested this code with Ubuntu 20.04, but I tried to make it as generic as 
 
 1. **Get the code.** `$ git clone` the repo and install the Python dependencies.
 2. To run a predefined simple demo of the code and test the main results run the command `python demo.py`
-
-<p align="center">
-  <img src=./img/arch.png width="600" height="400">
-  <br>
-  The Neural Network architecture of our Method
-</p>
 
 ## Testing the Encoder on 3D Shape Classification task:
 
