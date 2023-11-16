@@ -70,7 +70,7 @@ These are some visuals of the comparative results obtained :
 
 &nbsp;
 
-Since it is impossible to have a groundtruth of future movements what we do is we predict the present, i.e. we only give the model informations about the past (skeleton data recorded up until 400ms away) and try to predict the current motion. The delay for each predictive model compared to the ground-truth is due to the inference time, which is slower than the refreshment rate of the visual data published at 15 FPS.
+Since it is impossible to have a groundtruth of future movements,we "predicted the present", i.e. we only give the model informations about the past (skeleton data recorded up until 400ms away) and tried to predict the current motion. The delay for each predictive model compared to the ground-truth is due to the inference time, which is slower than the refreshment rate of the visual data published at 15 FPS.
 
 # Concepts
 
@@ -110,7 +110,7 @@ Using most of the concepts precedently defined, here is an overview of the Neura
 </p>
 
 # Dependencies
-**Python 3.10**, modern version of **PyTorch**, **numpy** and **scipy** module. Most of these are okay to install with **pip**. To install the rest of the dependencies all at once, run the command `./install.sh`
+**Python 3.10**, modern version of **PyTorch**, **numpy** and **scipy** module and the **ROS** distribution is Noetic. Most of these are okay to install with **pip**. To install the rest of the dependencies all at once, run the command `./install.sh`
 
 I only tested this code with Ubuntu 20.04, but I tried to make it as generic as possible (e.g. use of **os** module for file system interactions etc. So it might work on Windows and Mac relatively easily.)
 
