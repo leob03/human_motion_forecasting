@@ -42,6 +42,8 @@ During this project we studied and implemented multiple methods for Human Motion
 
 These are some visuals of the comparative results obtained :
 
+&nbsp;
+
 <p align="center">
   <img src="./gif/STS-GCN.gif" alt="Image Description" width="250" height="260">
   <br>
