@@ -98,7 +98,18 @@ Quick summary of the main concepts exploited in this project:
 ## LSTMs (Long Short-Term Memory networks)
 
 - **Description**: A type of recurrent neural network specialized in remembering long-term dependencies.
-- **Technical Aspects**: Incorporates gates that regulate the flow of information: an input gate, an output gate, and a forget gate. These gates determine what information should be retained or discarded at each step in the sequence.
+- **Technical Aspects**: LSTMs incorporate a series of gates to control the flow of information, each of which performs a specific function using mathematical operations. The key components are:
+
+  - **Input Gate**: Determines how much of the new information to add to the cell state. Mathematically, it involves two operations: $i_t = \sigma(W_{ii} x_t + b_{ii} + W_{hi} h_{t-1} + b_{hi})$ and $C_t = \tanh(W_{ic} x_t + b_{ic} + W_{hc} h_{t-1} + b_{hc})$, where $\sigma$ is the sigmoid function, $W$ and $b$ are weights and biases, $x_t$ is the input at time $t$, and $h_{t-1}$ is the previous output.
+
+  - **Forget Gate**: Decides what information to discard from the cell state. Computed as $f_t = \sigma(W_{if} x_t + b_{if} + W_{hf} h_{t-1} + b_{hf})$.
+
+  - **Cell State Update**: Combines the outputs of the input and forget gates to update the cell state: $C_t = f_t * C_{t-1} + i_t * \tilde{C}_t$, allowing the network to maintain or forget information over time.
+
+  - **Output Gate**: Determines the next hidden state, or the output of the LSTM unit. It is a function of the cell state and the output of the output gate: $o_t = \sigma(W_{io} x_t + b_{io} + W_{ho} h_{t-1} + b_{ho})$ and $h_t = o_t * \tanh(C_t)$.
+
+These gates and their interactions enable LSTMs to effectively learn and remember information over long sequences, addressing the vanishing gradient problem common in traditional recurrent neural networks.
+
 
 ## 2 Channel Spatio-Temporal Network
 
