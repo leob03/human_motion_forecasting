@@ -30,6 +30,8 @@ This repository contains a Neural Network model for Human Motion Forecasting in 
 
 [***Acknowledgments***](https://github.com/leob03/human_motion_forecasting#acknowledgments)
 
+[***License***](https://github.com/leob03/human_motion_forecasting#license)
+
 # Objective
 
 **With a simple RGB-D Camera predict the future motion of a human in a Smart Manufacturing workspace of to ensure safety in human-robot interactions.**
@@ -38,56 +40,71 @@ This repository contains a Neural Network model for Human Motion Forecasting in 
 
 During this project we studied and implemented multiple methods for Human Motion Forecasting, compared their performance (accuracy, speed and memory consumption) on Human 3.6M but most of all on our own Human-Robot Collaboration workspace set up. Indeed, we wanted to have an idea of how these models performed on real-time data. We compared the results of these implenetations on real-time skeleton data captured with the Azure Kinect SDK and worked on a visualization tool to compare those results. Finally, based on this previous study chose one method as a benchmark ("History Repeats Itself" by Wei Mao) and tried multiple different types of architecture improvements to obtain even better results.
 
-These are some visuals of the results obtained:
-
-&nbsp;
+These are some visuals of the comparative results obtained :
 
 <p align="center">
-<!--   Some visual results of : -->
+  <img src="./gif/STS-GCN.gif" alt="Image Description" width="250" height="260">
   <br>
-  <img src="./gif/STS-GCN.gif" alt="Image Description" width="400" height="300">
+  Comparisons with STS-GCN (Ground-Truth in Blue, STS-GCN in Purple, and our model in Green):
 </p>
 
 &nbsp;
 
 <p align="center">
 <!--   Some visual results of : -->
+  <img src="./gif/siMLPe.gif" alt="Image Description" width="250" height="280">
   <br>
-  <img src="./gif/siMLPe.gif" alt="Image Description" width="400" height="300">
+  Comparisons with siMLPe (Ground-Truth in Blue, siMLPe in Pale Blue, and our model in Green):
 </p>
 
 &nbsp;
 
 <p align="center">
 <!--   Some visual results of : -->
-  <br>
-  <img src="./gif/HRI.gif" alt="Image Description" width="400" height="300">
+  <img src="./gif/HRI.gif" alt="Image Description" width="250" height="270">
+    <br>
+    Comparisons with HRI (Ground-Truth in Blue, HRI in Red, and our model in Green):
 </p>
 
 &nbsp;
 
-
+Since it is impossible to have a groundtruth of future movements what we do is we predict the present, i.e. we only give the model informations about the past (skeleton data recorded up until 400ms away) and try to predict the current motion. The delay for each predictive model compared to the ground-truth is due to the inference time, which is slower than the refreshment rate of the visual data published at 15 FPS.
 
 # Concepts
 
-Most of the concepts are described quite in depth in the paper but here is a quick summary of the main concepts exploited in this project:
+Quick summary of the main concepts exploited in this project:
 
-* **Point-Cloud processing**. Point cloud processing involves handling and analyzing data that represents a set of points in three-dimensional space. Each point in the cloud typically contains information about its spatial coordinates and may include additional attributes like color or intensity. Point cloud processing techniques are used in various applications such as 3D reconstruction, object recognition, autonomous driving, and environmental modeling. The goal is to extract meaningful information, perform geometric analysis, and apply machine learning algorithms to understand and interact with the 3D world captured by the point cloud data.
+## Graph Convolutional Networks (GCN)
 
-* **Encoder-Decoder architecture**. Auto-encoders or Encoder-Decoders are artificial neural networks that learn how to efficiently compress and encode data into a smaller but meaningful latent-space and then learns how to decode it back such that the reconstructed input is as similar as possible to the original one.
+- **Description**: Neural networks designed for graph-structured data. Well-fitted for skeleton data where the graph could be either one body pose (to learn on the joint connectivity at each pose) or a set of body poses (to learn temporal evolution and speed of each joints).
+- **Technical Aspects**: GCNs generalize the convolution operation from regular grids to graphs. They work by aggregating feature information from neighbors in a graph, $H^{(l+1)} = \sigma( D^{-1/2} \hat{A} D^{-1/2} H^{(l)} W^{(l)} )$, where $H^{(l)}$ is the feature representation at layer $l$, $\hat{A}$ is the adjacency matrix with added self-connections, $D$ is the degree matrix, $W^{(l)}$ is the weight matrix for layer $l$, and $\sigma$ is the non-linear activation function.
 
-* **Attention**. Originally attention functions have been introduced as an improvement from Residual Neural Networks (RNN) that struggle to deal with long-range dependencies in sequence to sequence transduction tasks. Indeed, in RNNs, the input sequence is bottlenecked through a fixed-size vector called the context vector which results in a significant loss of information for long-range input sequences and a lack of consideration to local features. So this new idea of attention function introduced in the famous paper ”Attention is all you need”[4], uses a new context vector at each step of the output sequence to ”look at” different parts of the input sequence and consider local features.
+## Motion Attention
 
-* **Shape Classification**. Shape classification involves categorizing or classifying 3D shapes into predefined categories or classes based on their geometric properties and features. The goal is to assign each shape to the most appropriate category, enabling shape recognition and organization in various applications, such as computer-aided design, object recognition, and medical imaging.
+- **Description**: A specialized form of self-attention, inspired by transformers, tailored for identifying similar motion sub-sequences in historical data to predict future movements. Unlike traditional attention mechanisms in transformers that focus on enhancing sequence modeling, motion attention specifically targets the recognition of repetitive human motion patterns over time.
+- **Technical Aspects**: The model maps a query (the last observed sub-sequence) and key-value pairs (historical and future motion representations) to an output. It divides the motion history into sub-sequences, using the first part of each as a key and the entire sub-sequence as a value. The attention scores are computed using the formula  $a_i = q k_i^T$, where $q$ is the query, and $k_i$ are the keys. These scores are normalized by their sum, avoiding the gradient vanishing issue often encountered with softmax in traditional attention mechanisms. The final output $U$ is calculated as a weighted sum of the values $U = \sum_{i=1}^{N-M-T+1} a_i V_i$, where $V_i$ are the values transformed into trajectory space using DCT. This process captures partial motion similarities, enabling the model to predict future poses effectively.
 
-* **Part Segmentation**. Part segmentation, on the other hand, focuses on dividing a 3D shape into its constituent parts or components. The objective is to segment the shape into meaningful subregions or parts, each corresponding to a specific component or structure. Part segmentation is valuable in tasks like object analysis, shape reconstruction, and understanding the functional components of complex shapes, such as objects or human anatomy.
+
+## Temporal Encoding and DCT (Discrete Cosine Transform)
+
+- **Description**: Techniques for encoding temporal information in neural networks.
+- **Technical Aspects**: DCT transforms a sequence of values into components of different frequencies, $X_k = \sum_{n=0}^{N-1} x_n \cos\left[\frac{\pi}{N} (n + \frac{1}{2})k\right]$, where $X_k$ is the kth coefficient and $x_n$ is the nth element of the input sequence.
+
+## LSTMs (Long Short-Term Memory networks)
+
+- **Description**: A type of recurrent neural network specialized in remembering long-term dependencies.
+- **Technical Aspects**: Incorporates gates that regulate the flow of information: an input gate, an output gate, and a forget gate. These gates determine what information should be retained or discarded at each step in the sequence.
+
+## 2 Channel Spatio-Temporal Network
+
+- **Description**: A network architecture for simultaneous spatial and temporal data processing.
+- **Technical Aspects**: This architecture processes spatial and temporal components separately and then fuses them. The spatial channel captures static features, while the temporal channel captures dynamic changes, often using a sequence of frame differences or optical flow techniques.
 
 # Architecture
 
+Using most of the concepts precedently defined, here is an overview of the Neural Network architecture of our Method:
 <p align="center">
   <img src=./img/arch.png width="600" height="400">
-  <br>
-  The Neural Network architecture of our Method
 </p>
 
 # Dependencies
@@ -98,43 +115,35 @@ I only tested this code with Ubuntu 20.04, but I tried to make it as generic as 
 
 # Getting started
 
-1. **Get the code.** `$ git clone` the repo and install the Python dependencies.
-2. To run a predefined simple demo of the code and test the main results run the command `python demo.py`
+(coming soon)
 
-## Testing the Encoder on 3D Shape Classification task:
-
-To train our encoder on 3D Shape Classification task we had to make some small modifications on the network architecture in order to interpret and reduce the latent space into a set of vectors representing the object category labels. To this extent we added a Global Average Pooling Layer before the final projection layer to which we also adapted the dimensions in order to get a vector of the size of the number of categories. Fig 6 represents the structure used for 3D Shape Classification.
-
-Then, we evaluated it on ModelNet40, a dataset containing 12,311 CAD models with 40 object categories. They are split into 9,843 models for training and 2,468 for testing. As in PointNet++ [3] we preprocessed the data through uniform sampling of each CAD model together with the normal vectors from the object meshes. For evaluation metrics, we use the mean accuracy within each category and the overall accuracy over all classes. (The results are in the paper)
-
-<p align="center">
-  <img src=./img/3DShapeClass.png width="700" height="300">
-  <br>
-  The modified architecture of our encoder to test it on 3D Shape Classification
-</p>
-
-1. **Get the data.** Download alignment **ModelNet** [here](https://shapenet.cs.stanford.edu/media/modelnet40_normal_resampled.zip) and save in `modelnet40_normal_resampled`.
-2. **To train the model for Classification:** Run the training `$ python train/train_classification.py`. You'll see that the learning code writes checkpoints into `log/cls/Leo/train_classification.log` and periodically print its status. 
-3. **Evaluate the models checkpoints.** To evaluate a checkpoint from `models/`, run the scripts `$ python eval_classification.py`. You'll see that the learning code writes checkpoints into `log/cls/Leo/eval_classification.log` and periodically print its status. 
-
-## Testing the Auto-Encoder on 3D Part-Segmentation task:
-
-To train our whole network on 3D Shape Classification task we also had to make some small modifications on the architecture. Indeed, an auto-encoder is only expected to output a reconstruction of the input in its initial structure with a little degradation due to the loss of information in the data compression for the latent space. However, to perform part- segmentation we had to assign each point to a part label.
-
-Then, we evaluated it on the ShapeNetPart dataset which is annotated for 3D object part segmentation. It consists of 16,880 models from 16 shape categories, with 14,006 3D models for training and 2,874 for testing. The number of parts for each category is between 2 and 6, with 50 different parts in total. In our case we only kept 4 parts: the airplane which as 4 parts, the bag which as 2 parts, the cap which as 2 parts and the car which as 4 parts. Again we preprocessed the data using PointNet++[3] sampling technique. For evaluation metrics, we report category mIoU and instance mIoU. (The results are in the paper)
-
-<p align="center">
-  <img src=./img/3DPartSeg.png width="700" height="300">
-  <br>
-  The architecture of our auto-encoder to test it on 3D Part Segmentation
-</p>
-
-1. **Get the data.** Download alignment **ShapeNet** [here](https://shapenet.cs.stanford.edu/media/shapenetcore_partanno_segmentation_benchmark_v0_normal.zip) and save in `data/shapenetcore_partanno_segmentation_benchmark_v0_normal`.
-2. **To train the model for Part Segmentation:** Run the training `$ python train/train_partsegmentation.py`. You'll see that the learning code writes checkpoints into `log/partseg/Leo/train_classification.log` and periodically print its status. 
-3. **Evaluate the models checkpoints.** To evaluate a checkpoint from `models/`, run the scripts `$ python eval_partsegmentation.py`. You'll see that the learning code writes checkpoints into `log/partseg/Leo/eval_partsegmentation.log` and periodically print its status. 
 
 # References
 
-# Acknowledgments
-Some code and training settings are borrowed from both https://github.com/yanx27/Pointnet_Pointnet2_pytorch and from the paper [PCT: Point Cloud Transformer (Meng-Hao Guo et al.)](https://arxiv.org/abs/2012.09688) which original implementation is accessible here: https://github.com/MenghaoGuo/PCT.
+- Martinez, J., Black, M. J., & Romero, J. (2017). "On human motion prediction using recurrent neural networks."
+- Li, C., Zhang, Z., Lee, W. S., & Lee, G. H. (2018). "Convolutional Sequence to Sequence Model for Human Dynamics."
+- Ruiz, A. H., Gall, J., & Moreno-Noguer, F. (2019). "Human Motion Prediction via Spatio-Temporal Inpainting."
+- Mao, W., Liu, M., Salzmann, M., & Li, H. (2020). "Learning Trajectory Dependencies for Human Motion Prediction."
+- Mao, W., Liu, M., & Salzmann, M. (2020). "History Repeats Itself: Human Motion Prediction via Motion Attention."
+- Sofianos, T., Sampieri, A., Franco, L., & Galasso, F. (2021). "Space-Time-Separable Graph Convolutional Network for Pose Forecasting."
+- Aksan, E., Kaufmann, M., Cao, P., & Hilliges, O. (2021). "A Spatio-temporal Transformer for 3D Human Motion Prediction."
+- Guo, W., Du, Y., Shen, X., Lepetit, V., Alameda-Pineda, X., & Moreno-Noguer, F. (2022). "Back to MLP: A Simple Baseline for Human Motion Prediction."
+- Dang, L., Nie, Y., Long, C., Zhang, Q., & Li, G. (2022). "MSR-GCN: Multi-Scale Residual Graph Convolution Networks for Human Motion Prediction."
+- Ma, T., Nie, Y., Long, C., Zhang, Q., & Li, G. (2022). "Progressively Generating Better Initial Guesses Towards Next Stages for High-Quality Human Motion Prediction."
+- Li, M., Chen, S., Zhang, Z., Xie, L., Tian, Q., & Zhang, Y. (2022). "Skeleton-Parted Graph Scattering Networks for 3D Human Motion Prediction."
+- Nargund, A. A., & Sra, M. (2023). "SPOTR: Spatio-temporal Pose Transformers for Human Motion Prediction."
+- Gao, X., Du, S., Wu, Y., & Yang, Y. (2023). "Decompose More and Aggregate Better: Two Closer Looks at Frequency Representation Learning for Human Motion Prediction."
 
+# Acknowledgments
+
+The overall code framework (dataloading, training, testing etc.) is adapted from [3d-pose-baseline](https://github.com/una-dinosauria/3d-pose-baseline). 
+
+The predictor model code is adapted from [LTD](https://github.com/wei-mao-2019/LearnTrajDep) and [HRI](https://github.com/wei-mao-2019/HisRepItself).
+
+Some of our evaluation code and data process code was adapted/ported from [Residual Sup. RNN](https://github.com/una-dinosauria/human-motion-prediction) by [Julieta](https://github.com/una-dinosauria). 
+
+
+# License
+This code is distributed under an [MIT LICENSE](LICENSE).
+
+Note that our code depends on other libraries, including CLIP, SMPL, SMPL-X, PyTorch3D, and uses datasets that each have their own respective licenses that must also be followed.
