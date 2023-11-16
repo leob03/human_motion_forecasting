@@ -38,34 +38,37 @@ This repository contains a Neural Network model for Human Motion Forecasting in 
 
 # Comparisons
 
-During this project we studied and implemented multiple methods for Human Motion Forecasting, compared their performance (accuracy, speed and memory consumption) on Human 3.6M but most of all on our own Human-Robot Collaboration workspace set up. Indeed, we wanted to have an idea of how these models performed on real-time data. We compared the results of these implenetations on real-time skeleton data captured with the Azure Kinect SDK and worked on a visualization tool to compare those results. Finally, based on this previous study chose one method as a benchmark ("History Repeats Itself" by Wei Mao) and tried multiple different types of architecture improvements to obtain even better results.
+During this project we studied and implemented multiple methods for Human Motion Forecasting, compared their performance (accuracy, speed and memory consumption) on Human 3.6M but most of all on our own Human-Robot Collaboration workspace set up. Indeed, we wanted to have an idea of how these models performed on real-time data. We compared the results of these implenetations on real-time skeleton data captured with the Azure Kinect SDK and worked on a visualization tool to compare those results. Finally, based on this previous study chose one method as a benchmark ("History Repeats Itself" by Wei Mao, ECCV 2020) and tried multiple different types of architecture improvements to obtain even better results.
 
 These are some visuals of the comparative results obtained :
 
 &nbsp;
 
+## Comparisons with [STS-GCN](https://github.com/FraLuca/STSGCN)
 <p align="center">
   <img src="./gif/STS-GCN.gif" alt="Image Description" width="250" height="260">
   <br>
-  Comparisons with [STS-GCN](https://github.com/FraLuca/STSGCN) (Ground-Truth in Blue, STS-GCN in Purple, and our model in Green):
+  Ground-Truth in Blue, STS-GCN in Purple, and our model in Green
 </p>
 
 &nbsp;
 
+## Comparisons with [siMLPe](https://github.com/dulucas/simlpe)
 <p align="center">
 <!--   Some visual results of : -->
   <img src="./gif/siMLPe.gif" alt="Image Description" width="250" height="280">
   <br>
-  Comparisons with [siMLPe](https://github.com/dulucas/simlpe) (Ground-Truth in Blue, siMLPe in Pale Blue, and our model in Green):
+  Ground-Truth in Blue, siMLPe in Pale Blue, and our model in Green
 </p>
 
 &nbsp;
 
+## Comparisons with [HRI](https://github.com/wei-mao-2019/HisRepItself)
 <p align="center">
 <!--   Some visual results of : -->
   <img src="./gif/HRI.gif" alt="Image Description" width="250" height="270">
     <br>
-    Comparisons with [HRI](https://github.com/wei-mao-2019/HisRepItself) (Ground-Truth in Blue, HRI in Red, and our model in Green):
+    Ground-Truth in Blue, HRI in Red, and our model in Green
 </p>
 
 &nbsp;
