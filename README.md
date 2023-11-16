@@ -47,7 +47,7 @@ These are some visuals of the comparative results obtained :
 <p align="center">
   <img src="./gif/STS-GCN.gif" alt="Image Description" width="250" height="260">
   <br>
-  Comparisons with STS-GCN (Ground-Truth in Blue, STS-GCN in Purple, and our model in Green):
+  Comparisons with [STS-GCN](https://github.com/FraLuca/STSGCN) (Ground-Truth in Blue, STS-GCN in Purple, and our model in Green):
 </p>
 
 &nbsp;
@@ -56,7 +56,7 @@ These are some visuals of the comparative results obtained :
 <!--   Some visual results of : -->
   <img src="./gif/siMLPe.gif" alt="Image Description" width="250" height="280">
   <br>
-  Comparisons with siMLPe (Ground-Truth in Blue, siMLPe in Pale Blue, and our model in Green):
+  Comparisons with [siMLPe](https://github.com/dulucas/simlpe) (Ground-Truth in Blue, siMLPe in Pale Blue, and our model in Green):
 </p>
 
 &nbsp;
@@ -65,7 +65,7 @@ These are some visuals of the comparative results obtained :
 <!--   Some visual results of : -->
   <img src="./gif/HRI.gif" alt="Image Description" width="250" height="270">
     <br>
-    Comparisons with HRI (Ground-Truth in Blue, HRI in Red, and our model in Green):
+    Comparisons with [HRI](https://github.com/wei-mao-2019/HisRepItself) (Ground-Truth in Blue, HRI in Red, and our model in Green):
 </p>
 
 &nbsp;
@@ -110,9 +110,15 @@ Using most of the concepts precedently defined, here is an overview of the Neura
 </p>
 
 # Dependencies
-**Python 3.10**, modern version of **PyTorch**, **numpy** and **scipy** module and the **ROS** distribution is Noetic. Most of these are okay to install with **pip**. To install the rest of the dependencies all at once, run the command `./install.sh`
-
-I only tested this code with Ubuntu 20.04, but I tried to make it as generic as possible (e.g. use of **os** module for file system interactions etc. So it might work on Windows and Mac relatively easily.)
+- PyTorch >= 1.5 (ours is 1.9.0)
+- Numpy
+- CUDA >= 10.1
+- Easydict
+- pickle
+- einops
+- scipy
+- six
+- ROS Noetic
 
 
 # Getting started
@@ -138,14 +144,19 @@ I only tested this code with Ubuntu 20.04, but I tried to make it as generic as 
 
 # Acknowledgments
 
-The overall code framework (dataloading, training, testing etc.) is adapted from [3d-pose-baseline](https://github.com/una-dinosauria/3d-pose-baseline). 
+The predictor model code is originally adapted from [HRI](https://github.com/wei-mao-2019/HisRepItself).
 
-The predictor model code is adapted from [LTD](https://github.com/wei-mao-2019/LearnTrajDep) and [HRI](https://github.com/wei-mao-2019/HisRepItself).
+Some of our evaluation code and data process code (on Human3.6) was adapted from [Residual Sup. RNN](https://github.com/una-dinosauria/human-motion-prediction) by [Julieta](https://github.com/una-dinosauria). 
 
-Some of our evaluation code and data process code was adapted/ported from [Residual Sup. RNN](https://github.com/una-dinosauria/human-motion-prediction) by [Julieta](https://github.com/una-dinosauria). 
+We also use those github repositories to make our own implementation of some SOTA methods:
+- [siMLPe (WACV 2023)](https://github.com/dulucas/simlpe)
+- [STS-GCN (ICCV 2021)](https://github.com/FraLuca/STSGCN)
+- [LTD (ICCV 2019)](https://github.com/wei-mao-2019/LearnTrajDep)
+- [HRI (ECCV 2020)](https://github.com/wei-mao-2019/HisRepItself)
+- [Residual Sup. RNN (CVPR 2017)](https://github.com/una-dinosauria/human-motion-prediction)
 
 
 # License
 This code is distributed under an [MIT LICENSE](LICENSE).
 
-Note that our code depends on other libraries, including CLIP, SMPL, SMPL-X, PyTorch3D, and uses datasets that each have their own respective licenses that must also be followed.
+Note that our code depends on other libraries, including CLIP, SMPL-X, PyTorch3D, and uses datasets that each have their own respective licenses that must also be followed.
